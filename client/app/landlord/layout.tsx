@@ -1,6 +1,6 @@
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "../../components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
 
 import NavigationLinks from "./navLinks";
 import ProfileMenu from "./profileMenu";

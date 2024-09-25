@@ -2,10 +2,10 @@
 
 import { CircleUser } from "lucide-react";
 
-import destroySession from "@/utils/destroySessionUtil";
+import destroySession from "../../utils/destroySessionUtil";
 
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "../../components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 
 export default function ProfileMenu() {
   const handleLogout = async () => {
