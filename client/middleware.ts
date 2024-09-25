@@ -3,12 +3,12 @@ import { cookies } from "next/headers";
 import verifySession from "./utils/verifySessionUtil";
 
 const protectedRoutes = ["/landlord", "/tenant"];
-const publicRoutes = ["/", "/login", "/register"];
+const publicRoutes = ["/", "/login", "/register", "/activate"];
 
 export default async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.includes(path);
-  const isPublicRoute = publicRoutes.includes(path);
+  const isProtectedRoute = protectedRoutes.some(route => path === route || path.startsWith(`${route}/`));
+  const isPublicRoute = publicRoutes.some(route => path === route || path.startsWith(`${route}/`));
 
   const accessToken = cookies().get("access_token")?.value;
 
@@ -23,7 +23,7 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.nextUrl));
     }
 
-    if (isPublicRoute && session?.success) {
+    else if (isPublicRoute && session?.success) {
       if (session?.role === "landlord") {
         return NextResponse.redirect(new URL("/landlord", request.nextUrl));
       } 
@@ -33,7 +33,7 @@ export default async function middleware(request: NextRequest) {
       }
     }
 
-    if (isProtectedRoute && session?.success) {
+    else if (isProtectedRoute && session?.success) {
       if (session?.role === "landlord" && !request.nextUrl.pathname.startsWith("/landlord")) {
         return NextResponse.redirect(new URL("/landlord", request.nextUrl));
       } 

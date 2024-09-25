@@ -1,20 +1,11 @@
-"use client";
-
-import { CircleUser, Menu } from "lucide-react";
-
-import destroySession from "@/utils/destroySessionUtil";
-import NavigationLinks from "./navLinks";
-
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
+import NavigationLinks from "./navLinks";
+import ProfileMenu from "./profileMenu";
+
 export default function Landlord({ children }: { children: React.ReactNode }) {
-
-  const handleLogout = async () => {
-    await destroySession();
-  };
-
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -30,7 +21,7 @@ export default function Landlord({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-[60px] items-center gap-4 border-b bg-muted/40 px-4 lg:h-[65px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="shrink-0 md:hidden">
@@ -47,28 +38,11 @@ export default function Landlord({ children }: { children: React.ReactNode }) {
               </nav>
             </SheetContent>
           </Sheet>
-
-          {/* user */}
           <div className="ml-auto">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <CircleUser className="h-5 w-5" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ProfileMenu />
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <main className="p-4 lg:p-6 h-full">
           {children}
         </main>
       </div>

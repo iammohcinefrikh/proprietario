@@ -12,13 +12,13 @@ function verifyJWTToken(request: RequestWithUser, response: Response, next: Next
     const accessToken = request.headers["authorization"]?.split(" ")[1];
 
     if (!accessToken) {
-      return handleResponse(response, 401, "error", "Unauthorized", "Authentication failed.");
-    } 
+      return handleResponse(response, 401, "error", "Unauthorized", "Échec de l'authentification.");
+    }
     
     else {
       jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET as string, (error, decoded) => {
         if (error) {
-          return handleResponse(response, 403, "error", "Forbidden", "Authentication failed.");
+          return handleResponse(response, 403, "error", "Forbidden", "Échec de l'authentification.");
         }
 
         request.user = decoded;
@@ -28,7 +28,7 @@ function verifyJWTToken(request: RequestWithUser, response: Response, next: Next
   } 
   
   catch (error) {
-    return handleResponse(response, 500, "error", "Internal Server Error", "An unexpected error occurred.");
+    return handleResponse(response, 500, "error", "Internal Server Error", "Une erreur inattendue s'est produite lors de l'authentification.");
   }
 }
 

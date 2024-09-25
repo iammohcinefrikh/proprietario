@@ -1,6 +1,6 @@
 "use server"
 
-const registerUser = async (userFirstName: string, userLastName: string, userEmail: string, userPassword: string, userRole: string) => {
+const registerUser = async (userFirstName: string, userLastName: string, userEmail: string, userPassword: string, userType: string) => {
   try {
     const response = await fetch(`${process.env.API_URL}/api/v1/register`, {
       method: "POST",
@@ -12,7 +12,7 @@ const registerUser = async (userFirstName: string, userLastName: string, userEma
         userLastName: userLastName,
         userEmail: userEmail,
         userPassword: userPassword,
-        userRole: userRole
+        userType: userType
       })
     });
 

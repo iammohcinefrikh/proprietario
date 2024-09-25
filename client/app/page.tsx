@@ -1,11 +1,6 @@
-import { Metadata } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-
-export const metadata: Metadata = {
-  title: "Proprietario - Logiciel de gestion locative immobilière"
-};
 
 export default function Home() {
   return (

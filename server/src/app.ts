@@ -6,7 +6,9 @@ import helmet from "helmet";
 dotenv.config();
 
 import authentificationRoutes from "./routers/authentificationRouter";
-import propertyRoutes from "./routers/propertyRouter";
+import statsRoute from "./routers/statsRouter";
+import unitRoutes from "./routers/unitRouter";
+import tenantRoutes from "./routers/tenantRouter";
 
 const app = express();
 
@@ -17,7 +19,9 @@ app.use(cors({
 }));
 
 app.use(authentificationRoutes);
-app.use(propertyRoutes);
+app.use(statsRoute);
+app.use(unitRoutes);
+// app.use(tenantRoutes);
 
 const PORT = process.env.PORT || 8080;
 

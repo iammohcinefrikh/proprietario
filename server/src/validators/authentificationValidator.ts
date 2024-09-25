@@ -30,12 +30,12 @@ const validateRegistration = [
   .isString().withMessage("userLastName doit être une chaîne de caractères.")
   .isLength({ min: 2, max: 32 }).withMessage("userLastName ne doit pas comporter plus de 32 caractères et moins de 2 caractères."),
   
-  body("userRole")
-  .exists().withMessage("userRole est nécessaire.")
-  .notEmpty().withMessage("userRole ne peut pas être vide.")
+  body("userType")
+  .exists().withMessage("userType est nécessaire.")
+  .notEmpty().withMessage("userType ne peut pas être vide.")
   .escape()
-  .isString().withMessage("userRole doit être une chaîne de caractères.")
-  .isIn(["landlord", "tenant"]).withMessage("userRole doit être soit \"landlord\", soit \"tenant\".")
+  .isString().withMessage("userType doit être une chaîne de caractères.")
+  .isIn(["landlord", "tenant"]).withMessage("userType doit être soit \"landlord\", soit \"tenant\".")
 ];
 
 const validateLogin = [
@@ -55,4 +55,21 @@ const validateLogin = [
   .isLength({ max: 64 }).withMessage("userPassword ne doit pas dépasser 64 caractères")
 ];
 
-export { validateRegistration, validateLogin };
+const validateActivation  = [
+  body("userId")
+  .exists().withMessage("userId est nécessaire.")
+  .notEmpty().withMessage("userId ne peut pas être vide.")
+  .escape()
+  .isString()
+  .isInt({ allow_leading_zeroes: false }).withMessage("userId doit être un entier valide."),
+
+  body("verificationToken")
+  .exists().withMessage("userId est nécessaire.")
+  .notEmpty().withMessage("userId ne peut pas être vide.")
+  .escape()
+  .isString()
+  .isLength({ min: 64, max: 64 }).withMessage("verificationToken doit comporter exactement 64 caractères.")
+  .matches(/^[A-Za-z0-9]+$/).withMessage("verificationToken doit contenir uniquement des caractères alphanumériques."),
+];
+
+export { validateRegistration, validateLogin, validateActivation };

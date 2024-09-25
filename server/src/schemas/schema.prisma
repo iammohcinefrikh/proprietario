@@ -7,130 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model conversation {
-  conversation_id           Int                                  @id @default(autoincrement())
-  conversation_created_at   DateTime                             @db.DateTime(0)
-  conversation_initiator_id Int
-  conversation_visibility   conversation_conversation_visibility
-  conversation_tenant_id    Int
-  conversation_landlord_id  Int
-  tenant                    tenant                               @relation(fields: [conversation_tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "conversation_ibfk_1")
-  landlord                  landlord                             @relation(fields: [conversation_landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "conversation_ibfk_2")
-  message                   message[]
-
-  @@index([conversation_landlord_id], map: "conversation_landlord_id")
-  @@index([conversation_tenant_id], map: "conversation_tenant_id")
-}
-
 model landlord {
-  landlord_id                      Int                             @id @default(autoincrement())
-  landlord_first_name              String                          @db.VarChar(32)
-  landlord_last_name               String                          @db.VarChar(32)
-  landlord_phone_number            String?                         @db.VarChar(16)
-  landlord_confirmation_number     String?                         @db.VarChar(6)
-  landlord_verification_completed  Boolean?                        @default(false)
-  landlord_current_subscription_id Int?
-  landlord_created_at              DateTime                        @default(now()) @db.DateTime(0)
-  landlord_updated_at              DateTime?                       @db.DateTime(0)
-  user_id                          Int
-  conversation                     conversation[]
-  user                             user                            @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_ibfk_1")
-  landlord_recieve_notification    landlord_recieve_notification[]
-  property                         property[]
-  request                          request[]
-  subscription                     subscription[]
+  landlord_id           Int                   @id @default(autoincrement())
+  landlord_first_name   String                @db.VarChar(32)
+  landlord_last_name    String                @db.VarChar(32)
+  landlord_phone_number String?               @db.VarChar(10)
+  landlord_created_at   DateTime              @default(now()) @db.DateTime(0)
+  landlord_updated_at   DateTime?             @db.DateTime(0)
+  user_id               Int
+  expense               expense[]
+  user                  user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_ibfk_1")
+  landlord_has_tenant   landlord_has_tenant[]
+  request               request[]
+  tenancy               tenancy[]
+  unit                  unit[]
 
   @@index([user_id], map: "user_id")
-}
-
-model landlord_recieve_notification {
-  landlord_id     Int
-  notification_id Int
-  landlord        landlord     @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_recieve_notification_ibfk_1")
-  notification    notification @relation(fields: [notification_id], references: [notification_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_recieve_notification_ibfk_2")
-
-  @@id([landlord_id, notification_id])
-  @@index([notification_id], map: "notification_id")
-}
-
-model message {
-  message_id        Int                    @id @default(autoincrement())
-  message_body      String                 @db.VarChar(4096)
-  message_sent_at   DateTime               @default(now()) @db.DateTime(0)
-  message_sender_id Int
-  message_status    message_message_status
-  conversation_id   Int
-  conversation      conversation           @relation(fields: [conversation_id], references: [conversation_id], onDelete: NoAction, onUpdate: NoAction, map: "message_ibfk_1")
-
-  @@index([conversation_id], map: "conversation_id")
-}
-
-model notification {
-  notification_id               Int                              @id @default(autoincrement())
-  notification_created_at       DateTime                         @default(now()) @db.DateTime(0)
-  notification_body             String                           @db.VarChar(240)
-  notification_status           notification_notification_status
-  landlord_recieve_notification landlord_recieve_notification[]
-  tenant_recieve_notification   tenant_recieve_notification[]
-}
-
-model payment {
-  payment_id     Int                    @id @default(autoincrement())
-  payment_amount Decimal                @db.Decimal(6, 2)
-  payment_date   DateTime               @default(now()) @db.DateTime(0)
-  patment_method payment_patment_method
-  payment_status payment_payment_status
-  tenant_id      Int
-  unit_id        Int
-  tenant         tenant                 @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "payment_ibfk_1")
-  unit           unit                   @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction, map: "payment_ibfk_2")
-
-  @@index([tenant_id], map: "tenant_id")
-  @@index([unit_id], map: "unit_id")
-}
-
-model plan {
-  plan_id            Int            @id @default(autoincrement())
-  plan_name          String         @db.VarChar(16)
-  plan_monthly_price Decimal        @db.Decimal(4, 2)
-  plan_yearly_price  Decimal        @db.Decimal(6, 2)
-  plan_description   String         @db.VarChar(255)
-  plan_features      Json
-  plan_created_at    DateTime       @default(now()) @db.DateTime(0)
-  plan_updated_at    DateTime?      @db.DateTime(0)
-  plan_history       plan_history[]
-  subscription       subscription[]
-}
-
-model plan_history {
-  plan_history_id    Int       @id @default(autoincrement())
-  plan_name          String    @db.VarChar(16)
-  plan_monthly_price Decimal   @db.Decimal(4, 2)
-  plan_yearly_price  Decimal   @db.Decimal(6, 2)
-  plan_description   String    @db.VarChar(255)
-  plan_features      Json
-  plan_start_date    DateTime  @default(now()) @db.DateTime(0)
-  plan_end_date      DateTime? @db.DateTime(0)
-  plan_id            Int
-  plan               plan      @relation(fields: [plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "plan_history_ibfk_1")
-
-  @@index([plan_id], map: "plan_id")
-}
-
-model property {
-  property_id          Int                    @id @default(autoincrement())
-  property_name        String                 @db.VarChar(128)
-  property_type        property_property_type
-  property_address     String                 @db.VarChar(128)
-  property_city        String?                @db.VarChar(32)
-  property_postal_code Int
-  property_created_at  DateTime               @default(now()) @db.DateTime(0)
-  property_updated_at  DateTime?              @db.DateTime(0)
-  landlord_id          Int
-  landlord             landlord               @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "property_ibfk_1")
-  unit                 unit[]
-
-  @@index([landlord_id], map: "landlord_id")
 }
 
 model request {
@@ -154,130 +46,100 @@ model request {
   @@index([unit_id], map: "unit_id")
 }
 
-model subscription {
-  subscription_id         Int                              @id @default(autoincrement())
-  subscription_status     subscription_subscription_status
-  subscription_start_date DateTime                         @default(now()) @db.DateTime(0)
-  subscription_end_date   DateTime?                        @db.DateTime(0)
-  subscription_auto_renew Boolean
-  plan_id                 Int
-  landlord_id             Int
-  plan                    plan                             @relation(fields: [plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "subscription_ibfk_1")
-  landlord                landlord                         @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "subscription_ibfk_2")
-
-  @@index([landlord_id], map: "landlord_id")
-  @@index([plan_id], map: "plan_id")
-}
-
 model tenant {
-  tenant_id                   Int                             @id @default(autoincrement())
-  tenant_first_name           String                          @db.VarChar(32)
-  tenant_last_name            String                          @db.VarChar(32)
-  tenant_phone_number         String                          @db.VarChar(16)
-  tenant_invitation_status    tenant_tenant_invitation_status
-  tenant_lease_start_at       DateTime                        @db.DateTime(0)
-  tenant_lease_end_at         DateTime                        @db.DateTime(0)
-  tenant_created_at           DateTime                        @default(now()) @db.DateTime(0)
-  tenant_updated_at           DateTime?                       @db.DateTime(0)
-  user_id                     Int
-  conversation                conversation[]
-  payment                     payment[]
-  request                     request[]
-  user                        user                            @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "tenant_ibfk_1")
-  tenant_recieve_notification tenant_recieve_notification[]
-  tenant_rent_unit            tenant_rent_unit[]
+  tenant_id           Int                   @id @default(autoincrement())
+  tenant_first_name   String?               @db.VarChar(32)
+  tenant_last_name    String?               @db.VarChar(32)
+  tenant_phone_number String?               @db.VarChar(10)
+  tenant_created_at   DateTime              @default(now()) @db.DateTime(0)
+  tenant_updated_at   DateTime?             @db.DateTime(0)
+  user_id             Int
+  landlord_has_tenant landlord_has_tenant[]
+  request             request[]
+  tenancy             tenancy[]
+  user                user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "tenant_ibfk_1")
 
   @@index([user_id], map: "user_id")
 }
 
-model tenant_recieve_notification {
-  tenant_id       Int
-  notification_id Int
-  tenant          tenant       @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "tenant_recieve_notification_ibfk_1")
-  notification    notification @relation(fields: [notification_id], references: [notification_id], onDelete: NoAction, onUpdate: NoAction, map: "tenant_recieve_notification_ibfk_2")
-
-  @@id([tenant_id, notification_id])
-  @@index([notification_id], map: "notification_id")
-}
-
-model tenant_rent_unit {
-  tenant_id Int
-  unit_id   Int
-  tenant    tenant @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "tenant_rent_unit_ibfk_1")
-  unit      unit   @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction, map: "tenant_rent_unit_ibfk_2")
-
-  @@id([tenant_id, unit_id])
-  @@index([unit_id], map: "unit_id")
-}
-
 model unit {
-  unit_id            Int                @id @default(autoincrement())
-  unit_number        Int
-  unit_renting_price Decimal            @db.Decimal(6, 2)
-  property_id        Int
-  payment            payment[]
-  request            request[]
-  tenant_rent_unit   tenant_rent_unit[]
-  property           property           @relation(fields: [property_id], references: [property_id], onDelete: NoAction, onUpdate: NoAction, map: "unit_ibfk_1")
+  unit_id         Int            @id @default(autoincrement())
+  unit_name       String         @db.VarChar(128)
+  unit_type       unit_unit_type
+  unit_created_at DateTime       @default(now()) @db.DateTime(0)
+  unit_updated_at DateTime?      @db.DateTime(0)
+  landlord_id     Int
+  expense         expense[]
+  request         request[]
+  tenancy         tenancy[]
+  landlord        landlord       @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "unit_ibfk_1")
 
-  @@index([property_id], map: "property_id")
+  @@index([landlord_id], map: "landlord_id")
 }
 
 model user {
-  user_id       Int            @id @default(autoincrement())
-  user_email    String         @unique(map: "user_email") @db.VarChar(64)
-  user_password String         @db.VarChar(512)
-  user_type     user_user_type @default(landlord)
-  landlord      landlord[]
-  tenant        tenant[]
+  user_id                     Int            @id @default(autoincrement())
+  user_email                  String         @unique(map: "user_email") @db.VarChar(64)
+  user_password               String         @db.VarChar(255)
+  user_type                   user_user_type
+  user_active                 Boolean        @default(false)
+  user_verification_token     String?        @db.VarChar(64)
+  user_verification_completed Boolean        @default(false)
+  user_created_at             DateTime       @default(now()) @db.DateTime(0)
+  landlord                    landlord[]
+  tenant                      tenant[]
 
   @@map("_user")
 }
 
-enum payment_patment_method {
-  cash
-  online
+model expense {
+  expense_id          Int       @id @default(autoincrement())
+  expense_amount      Decimal   @db.Decimal(10, 2)
+  expense_name        String    @unique(map: "expense_name") @db.VarChar(128)
+  expense_date        DateTime  @db.DateTime(0)
+  expense_created_at  DateTime  @default(now()) @db.DateTime(0)
+  expense_modified_at DateTime? @db.DateTime(0)
+  unit_id             Int
+  landlord_id         Int
+  unit                unit      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction, map: "expense_ibfk_1")
+  landlord            landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "expense_ibfk_2")
+
+  @@index([landlord_id], map: "landlord_id")
+  @@index([unit_id], map: "unit_id")
 }
 
-enum subscription_subscription_status {
-  trial
-  active
-  cancelled
-  expired
+model tenancy {
+  tenancy_id          Int       @id @default(autoincrement())
+  tenancy_name        String    @unique(map: "tenancy_name") @db.VarChar(255)
+  tenancy_start_date  DateTime  @db.Date
+  tenancy_end_date    DateTime  @db.Date
+  tenancy_created_at  DateTime  @default(now()) @db.Timestamp(0)
+  tenancy_modified_at DateTime? @default(now()) @db.Timestamp(0)
+  tenancy_amount      Decimal   @db.Decimal(10, 2)
+  unit_id             Int
+  tenant_id           Int
+  landlord_id         Int
+  unit                unit      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction, map: "tenancy_ibfk_1")
+  tenant              tenant    @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "tenancy_ibfk_2")
+  landlord            landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "tenancy_ibfk_3")
+
+  @@index([landlord_id], map: "landlord_id")
+  @@index([tenant_id], map: "tenant_id")
+  @@index([unit_id], map: "unit_id")
 }
 
-enum property_property_type {
-  appartement
-  house
-  building
-}
+model landlord_has_tenant {
+  landlord_id         Int
+  tenant_id           Int
+  tenant_first_name   String?                               @db.VarChar(32)
+  tenant_last_name    String?                               @db.VarChar(32)
+  tenant_phone_number String?                               @db.VarChar(10)
+  invitation_status   landlord_has_tenant_invitation_status @default(not_invited)
+  landlord            landlord                              @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_has_tenant_ibfk_1")
+  tenant              tenant                                @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_has_tenant_ibfk_2")
 
-enum conversation_conversation_visibility {
-  initiator_only @map("initiator only")
-  both
-}
-
-enum notification_notification_status {
-  unseen
-  seen
-  acknowledged
-}
-
-enum message_message_status {
-  sent
-  seen
-}
-
-enum payment_payment_status {
-  unpaid
-  paid
-}
-
-enum request_request_priority {
-  low
-  medium
-  high
-  urgent
+  @@id([landlord_id, tenant_id])
+  @@index([tenant_id], map: "tenant_id")
 }
 
 enum request_request_status {
@@ -287,9 +149,10 @@ enum request_request_status {
   cancelled
 }
 
-enum tenant_tenant_invitation_status {
-  pending
-  accepted
+enum request_request_priority {
+  low
+  medium
+  high
 }
 
 enum user_user_type {
@@ -297,4 +160,17 @@ enum user_user_type {
   tenant
 
   @@map("_user_user_type")
+}
+
+enum unit_unit_type {
+  house
+  flat
+  room
+  other
+}
+
+enum landlord_has_tenant_invitation_status {
+  not_invited
+  pending
+  accepted
 }

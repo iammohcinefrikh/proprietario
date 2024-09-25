@@ -14,13 +14,9 @@ export default function NavigationLinks() {
         <LayoutDashboard className="h-4 w-4" />
         Tableau de bord
       </Link>
-      <Link href="/landlord/units" className={`flex items-center gap-3 rounded-lg px-3 py-2 ${pathname === "/landlord/units" ? "bg-muted text-primary" : "text-muted-foreground"} transition-all hover:text-primary`}>
+      <Link href="/landlord/properties" className={`flex items-center gap-3 rounded-lg px-3 py-2 ${pathname === "/landlord/properties" ? "bg-muted text-primary" : "text-muted-foreground"} transition-all hover:text-primary`}>
         <House className="h-4 w-4" />
-        Unités
-      </Link>
-      <Link href="/landlord/buildings" className={`flex items-center gap-3 rounded-lg px-3 py-2 ${pathname === "/landlord/buildings" ? "bg-muted text-primary" : "text-muted-foreground"} transition-all hover:text-primary`}>
-        <Building className="h-4 w-4" />
-        Bâtiments
+        Propriétés
       </Link>
       <Link href="/landlord/tenants" className={`flex items-center gap-3 rounded-lg px-3 py-2 ${pathname === "/landlord/tenants" ? "bg-muted text-primary" : "text-muted-foreground"} transition-all hover:text-primary`}>
         <Users className="h-4 w-4" />
