@@ -159,12 +159,13 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
     else {
       const generatedPassword = generateRandomToken(16);
 
-      const [newUser, newTenant, newRelation] = await prisma.$transaction(async (prisma) => {
+      const [newTenant] = await prisma.$transaction(async (prisma) => {
         const newUser = await prisma.user.create({
           data: {
             user_email: tenantEmail,
             user_password: hashPassword(generatedPassword),
-            user_type: "tenant"
+            user_type: "tenant",
+            
           }
         });
       
@@ -173,8 +174,6 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
             tenant_first_name: tenantFirstName,
             tenant_last_name: tenantLastName,
             tenant_phone_number: tenantPhoneNumber,
-            tenant_verification_token: generateRandomToken(64),
-            tenant_verification_completed: false,
             user_id: newUser.user_id
           }
         });
@@ -187,7 +186,7 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
           }
         });
       
-        return [newUser, newTenant, newRelation];
+        return [newTenant];
       });
 
       if (tenantIsInvited) {
