@@ -3,89 +3,19 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model landlord {
-  landlord_id           Int                   @id @default(autoincrement())
-  landlord_first_name   String                @db.VarChar(32)
-  landlord_last_name    String                @db.VarChar(32)
-  landlord_phone_number String?               @db.VarChar(10)
-  landlord_created_at   DateTime              @default(now()) @db.DateTime(0)
-  landlord_updated_at   DateTime?             @db.DateTime(0)
-  user_id               Int
-  expense               expense[]
-  user                  user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_ibfk_1")
-  landlord_has_tenant   landlord_has_tenant[]
-  request               request[]
-  tenancy               tenancy[]
-  unit                  unit[]
-
-  @@index([user_id], map: "user_id")
-}
-
-model request {
-  request_id         Int                      @id @default(autoincrement())
-  request_title      String                   @db.VarChar(128)
-  request_body       String                   @db.VarChar(512)
-  request_response   String                   @db.VarChar(512)
-  request_priority   request_request_priority
-  request_status     request_request_status
-  request_created_at DateTime                 @default(now()) @db.DateTime(0)
-  request_closed_at  DateTime?                @db.DateTime(0)
-  tenant_id          Int
-  unit_id            Int
-  landlord_id        Int
-  tenant             tenant                   @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "request_ibfk_1")
-  unit               unit                     @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction, map: "request_ibfk_2")
-  landlord           landlord                 @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "request_ibfk_3")
-
-  @@index([landlord_id], map: "landlord_id")
-  @@index([tenant_id], map: "tenant_id")
-  @@index([unit_id], map: "unit_id")
-}
-
-model tenant {
-  tenant_id           Int                   @id @default(autoincrement())
-  tenant_first_name   String?               @db.VarChar(32)
-  tenant_last_name    String?               @db.VarChar(32)
-  tenant_phone_number String?               @db.VarChar(10)
-  tenant_created_at   DateTime              @default(now()) @db.DateTime(0)
-  tenant_updated_at   DateTime?             @db.DateTime(0)
-  user_id             Int
-  landlord_has_tenant landlord_has_tenant[]
-  request             request[]
-  tenancy             tenancy[]
-  user                user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "tenant_ibfk_1")
-
-  @@index([user_id], map: "user_id")
-}
-
-model unit {
-  unit_id         Int            @id @default(autoincrement())
-  unit_name       String         @db.VarChar(128)
-  unit_type       unit_unit_type
-  unit_created_at DateTime       @default(now()) @db.DateTime(0)
-  unit_updated_at DateTime?      @db.DateTime(0)
-  landlord_id     Int
-  expense         expense[]
-  request         request[]
-  tenancy         tenancy[]
-  landlord        landlord       @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "unit_ibfk_1")
-
-  @@index([landlord_id], map: "landlord_id")
-}
-
 model user {
-  user_id                     Int            @id @default(autoincrement())
-  user_email                  String         @unique(map: "user_email") @db.VarChar(64)
-  user_password               String         @db.VarChar(255)
-  user_type                   user_user_type
-  user_active                 Boolean        @default(false)
-  user_verification_token     String?        @db.VarChar(64)
-  user_verification_completed Boolean        @default(false)
-  user_created_at             DateTime       @default(now()) @db.DateTime(0)
+  user_id                     Int        @id @default(dbgenerated("nextval('_user_user_id_seq'::regclass)"))
+  user_email                  String     @unique @db.VarChar(64)
+  user_password               String     @db.VarChar(255)
+  user_type                   String     @db.VarChar(32)
+  user_active                 Boolean    @default(false)
+  user_verification_token     String?    @db.VarChar(64)
+  user_verification_completed Boolean    @default(false)
+  user_created_at             DateTime   @default(now()) @db.Timestamptz(6)
   landlord                    landlord[]
   tenant                      tenant[]
 
@@ -95,82 +25,101 @@ model user {
 model expense {
   expense_id          Int       @id @default(autoincrement())
   expense_amount      Decimal   @db.Decimal(10, 2)
-  expense_name        String    @unique(map: "expense_name") @db.VarChar(128)
-  expense_date        DateTime  @db.DateTime(0)
-  expense_created_at  DateTime  @default(now()) @db.DateTime(0)
-  expense_modified_at DateTime? @db.DateTime(0)
+  expense_name        String    @unique @db.VarChar(128)
+  expense_date        DateTime  @db.Timestamptz(6)
+  expense_created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  expense_modified_at DateTime? @default(now()) @db.Timestamptz(6)
   unit_id             Int
   landlord_id         Int
-  unit                unit      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction, map: "expense_ibfk_1")
-  landlord            landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "expense_ibfk_2")
-
-  @@index([landlord_id], map: "landlord_id")
-  @@index([unit_id], map: "unit_id")
+  landlord            landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
+  unit                unit      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model tenancy {
-  tenancy_id          Int       @id @default(autoincrement())
-  tenancy_name        String    @unique(map: "tenancy_name") @db.VarChar(255)
-  tenancy_start_date  DateTime  @db.Date
-  tenancy_end_date    DateTime  @db.Date
-  tenancy_created_at  DateTime  @default(now()) @db.Timestamp(0)
-  tenancy_modified_at DateTime? @default(now()) @db.Timestamp(0)
-  tenancy_amount      Decimal   @db.Decimal(10, 2)
-  unit_id             Int
-  tenant_id           Int
-  landlord_id         Int
-  unit                unit      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction, map: "tenancy_ibfk_1")
-  tenant              tenant    @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "tenancy_ibfk_2")
-  landlord            landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "tenancy_ibfk_3")
-
-  @@index([landlord_id], map: "landlord_id")
-  @@index([tenant_id], map: "tenant_id")
-  @@index([unit_id], map: "unit_id")
+model landlord {
+  landlord_id           Int                   @id @default(autoincrement())
+  landlord_first_name   String                @db.VarChar(32)
+  landlord_last_name    String                @db.VarChar(32)
+  landlord_phone_number String?               @db.VarChar(10)
+  landlord_created_at   DateTime              @default(now()) @db.Timestamptz(6)
+  landlord_updated_at   DateTime?             @default(now()) @db.Timestamptz(6)
+  user_id               Int
+  expense               expense[]
+  user                  user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  landlord_has_tenant   landlord_has_tenant[]
+  request               request[]
+  tenancy               tenancy[]
+  unit                  unit[]
 }
 
 model landlord_has_tenant {
   landlord_id         Int
   tenant_id           Int
-  tenant_first_name   String?                               @db.VarChar(32)
-  tenant_last_name    String?                               @db.VarChar(32)
-  tenant_phone_number String?                               @db.VarChar(10)
-  invitation_status   landlord_has_tenant_invitation_status @default(not_invited)
-  landlord            landlord                              @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_has_tenant_ibfk_1")
-  tenant              tenant                                @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction, map: "landlord_has_tenant_ibfk_2")
+  tenant_first_name   String?  @db.VarChar(32)
+  tenant_last_name    String?  @db.VarChar(32)
+  tenant_phone_number String?  @db.VarChar(10)
+  invitation_status   String   @default("not_invited") @db.VarChar(32)
+  landlord            landlord @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
+  tenant              tenant   @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([landlord_id, tenant_id])
-  @@index([tenant_id], map: "tenant_id")
 }
 
-enum request_request_status {
-  in_progress @map("in progress")
-  resolved
-  rejected
-  cancelled
+model request {
+  request_id         Int       @id @default(autoincrement())
+  request_title      String    @db.VarChar(128)
+  request_body       String    @db.VarChar(512)
+  request_response   String?   @db.VarChar(512)
+  request_priority   String    @db.VarChar(32)
+  request_status     String    @db.VarChar(32)
+  request_created_at DateTime  @default(now()) @db.Timestamptz(6)
+  request_closed_at  DateTime? @db.Timestamptz(6)
+  tenant_id          Int
+  unit_id            Int
+  landlord_id        Int
+  landlord           landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
+  tenant             tenant    @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
+  unit               unit      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-enum request_request_priority {
-  low
-  medium
-  high
+model tenancy {
+  tenancy_id          Int       @id @default(autoincrement())
+  tenancy_name        String    @unique @db.VarChar(255)
+  tenancy_start_date  DateTime  @db.Date
+  tenancy_end_date    DateTime  @db.Date
+  tenancy_created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  tenancy_modified_at DateTime? @default(now()) @db.Timestamptz(6)
+  tenancy_amount      Decimal   @db.Decimal(10, 2)
+  unit_id             Int
+  tenant_id           Int
+  landlord_id         Int
+  landlord            landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
+  tenant              tenant    @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
+  unit                unit      @relation(fields: [unit_id], references: [unit_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-enum user_user_type {
-  landlord
-  tenant
-
-  @@map("_user_user_type")
+model tenant {
+  tenant_id           Int                   @id @default(autoincrement())
+  tenant_first_name   String?               @db.VarChar(32)
+  tenant_last_name    String?               @db.VarChar(32)
+  tenant_phone_number String?               @db.VarChar(10)
+  tenant_created_at   DateTime              @default(now()) @db.Timestamptz(6)
+  tenant_updated_at   DateTime?             @default(now()) @db.Timestamptz(6)
+  user_id             Int
+  landlord_has_tenant landlord_has_tenant[]
+  request             request[]
+  tenancy             tenancy[]
+  user                user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-enum unit_unit_type {
-  house
-  flat
-  room
-  other
-}
-
-enum landlord_has_tenant_invitation_status {
-  not_invited
-  pending
-  accepted
+model unit {
+  unit_id         Int       @id @default(autoincrement())
+  unit_name       String    @db.VarChar(128)
+  unit_type       String    @db.VarChar(32)
+  unit_created_at DateTime  @default(now()) @db.Timestamptz(6)
+  unit_updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  landlord_id     Int
+  expense         expense[]
+  request         request[]
+  tenancy         tenancy[]
+  landlord        landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
 }
