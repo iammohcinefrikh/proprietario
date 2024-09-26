@@ -14,7 +14,7 @@ import { Label } from "../../components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
-import registerUser from "../../utils/registerUserUtil";
+import registerUser from "./registerUser";
 import { CircleCheck, TriangleAlert } from "lucide-react";
 
 const registerFormSchema = z.object({

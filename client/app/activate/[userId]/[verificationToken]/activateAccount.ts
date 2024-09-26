@@ -2,7 +2,7 @@
 
 const activateAccount = async (userId: number, verificationToken: string) => {
   try {
-    const response = await fetch(`${process.env.API_URL}/api/v1/activate/`, {
+    const response = await fetch(`${process.env.API_URL}/api/v1/account/activate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

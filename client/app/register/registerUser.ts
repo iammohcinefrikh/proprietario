@@ -2,7 +2,7 @@
 
 const registerUser = async (userFirstName: string, userLastName: string, userEmail: string, userPassword: string, userType: string) => {
   try {
-    const response = await fetch(`${process.env.API_URL}/api/v1/register`, {
+    const response = await fetch(`${process.env.API_URL}/api/v1/user/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

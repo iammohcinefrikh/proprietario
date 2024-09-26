@@ -174,7 +174,7 @@ const activate = async (request: Request, response: Response) => {
       if (existingUser.user_verification_token === verificationToken) {
         await prisma.user.update({
           where: {
-            user_id: +userId
+            user_id: existingUser.user_id
           },
           data: {
             user_verification_completed: true,
@@ -197,4 +197,91 @@ const activate = async (request: Request, response: Response) => {
   }
 }
 
-export { register, login, verify, activate };
+const check = async (request: Request, response: Response) => {
+  try {
+    const { landlordId, tenantId, invitationToken } = request.body;
+
+    const existingInvitation = await prisma.landlord_has_tenant.findUnique({
+      where: {
+        landlord_id_tenant_id: {
+          landlord_id: +landlordId,
+          tenant_id: +tenantId
+        },
+        tenant_invitation_status: "pending",
+        tenant_invitation_token: invitationToken
+      }
+    });
+
+    if (!existingInvitation) {
+      return handleResponse(response, 404, "error", "Not Found", "L'invitation n'existe pas.");
+    }
+
+    handleResponse(response, 200, "success", "OK", "Invitation valide.");
+  }
+
+  catch (error) {
+    handleResponse(response, 500, "error", "Internal Server Error", "Une erreur s'est produite lors de la vérification de l'invitation.");
+  }
+}
+
+const confirm = async (request: Request, response: Response) => {
+  try {
+    const { landlordId, tenantId, tenantPassword, invitationToken } = request.body;
+
+    const existingInvitation = await prisma.landlord_has_tenant.findUnique({
+      where: {
+        landlord_id_tenant_id: {
+          landlord_id: +landlordId,
+          tenant_id: +tenantId
+        },
+        tenant_invitation_status: "pending",
+        tenant_invitation_token: invitationToken
+      }
+    });
+
+    if (!existingInvitation) {
+      return handleResponse(response, 404, "error", "Not Found", "L'invitation n'existe pas.");
+    }
+
+    await prisma.$transaction(async (prisma) => {
+      const existingTenant = await prisma.tenant.findUnique({
+        where: {
+          tenant_id: +tenantId
+        }
+      });
+
+      await prisma.user.update({
+        where: {
+          user_id: existingTenant?.user_id
+        },
+        data: {
+          user_verification_completed: true,
+          user_verification_token: null,
+          user_active: true,
+          user_password: hashPassword(tenantPassword)
+        }
+      });
+
+      await prisma.landlord_has_tenant.update({
+        where: {
+          landlord_id_tenant_id: {
+            landlord_id: +landlordId,
+            tenant_id: +tenantId
+          }
+        },
+        data: {
+          tenant_invitation_status: "accepted",
+          tenant_invitation_token: null
+        }
+      });
+    });
+
+    handleResponse(response, 200, "success", "OK", "Invitation accepted.");
+  }
+
+  catch (error) {
+    handleResponse(response, 500, "error", "Internal Server Error", "Une erreur s'est produite lors de l'acceptation de l'invitation.");
+  }
+}
+
+export { register, login, verify, activate, check, confirm };

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import verifySession from "./utils/verifySessionUtil";
 
 const protectedRoutes = ["/landlord", "/tenant"];
-const publicRoutes = ["/", "/login", "/register", "/activate"];
+const publicRoutes = ["/", "/login", "/register", "/activate", "/accept"];
 
 export default async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;

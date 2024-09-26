@@ -2,9 +2,9 @@
 
 import { cookies } from "next/headers";
 
-const setSession = async (userEmail: string, userPassword: string) => {
+const loginUser = async (userEmail: string, userPassword: string) => {
   try {
-    const response = await fetch(`${process.env.API_URL}/api/v1/login`, {
+    const response = await fetch(`${process.env.API_URL}/api/v1/user/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -61,4 +61,4 @@ const setSession = async (userEmail: string, userPassword: string) => {
   }
 }
 
-export default setSession;
+export default loginUser;

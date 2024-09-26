@@ -2,7 +2,7 @@
 
 const verifySession = async (accessToken: string) => {
   try {
-    const response = await fetch(`${process.env.API_URL}/api/v1/verify`, {
+    const response = await fetch(`${process.env.API_URL}/api/v1/session/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

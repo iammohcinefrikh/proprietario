@@ -9,10 +9,10 @@ import Link from "next/link";
 
 const paramsSchema = z.object({
   userId: z.string().transform((val) => parseInt(val, 10)),
-  verificationToken: z.string().length(64).regex(/^[A-Za-z0-9]+$/),
+  verificationToken: z.string().length(64).regex(/^[A-Za-z0-9]+$/)
 });
 
-export default function ActivationStatus() {
+export default function Activation() {
   const params = useParams();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -44,7 +44,7 @@ export default function ActivationStatus() {
       
       else {
         setIsError(true);
-        setErrorMessage("Une erreur s'est produite lors de l'activation du compte.");
+        setErrorMessage("Le lien d'activation n'est pas valide, veuillez vérifier s'il est valide et réessayer.");
       }
 
       setIsLoading(false);

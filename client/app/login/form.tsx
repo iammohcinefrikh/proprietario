@@ -12,7 +12,7 @@ import { Button } from "../../components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../components/ui/form";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
 
-import setSession from "../../utils/setSessionUtil";
+import loginUser from "./loginUser";
 import { TriangleAlert } from "lucide-react";
 
 const loginFormSchema = z.object({
@@ -39,7 +39,7 @@ export default function LoginForm() {
 
   const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
     try {
-      const session = await setSession(values.userEmail, values.userPassword);
+      const session = await loginUser(values.userEmail, values.userPassword);
       setIsLoading(true);
       setIsError(false);
       setErrorMessage("");
