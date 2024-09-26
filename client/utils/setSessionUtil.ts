@@ -31,7 +31,7 @@ const setSession = async (userEmail: string, userPassword: string) => {
         httpOnly: true,
         path: "/",
         sameSite: "strict",
-        secure: process.env.NODE_ENV === "production" ? true : false
+        secure: process.env.NODE_ENV === "production"
       });
 
       cookies().set("csrf_token", csrfToken, {
@@ -40,7 +40,7 @@ const setSession = async (userEmail: string, userPassword: string) => {
         httpOnly: true,
         path: "/",
         sameSite: "strict",
-        secure: process.env.NODE_ENV === "production" ? true : false
+        secure: process.env.NODE_ENV === "production"
       });
 
       return {
