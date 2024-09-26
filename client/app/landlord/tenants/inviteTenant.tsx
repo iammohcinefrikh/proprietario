@@ -16,7 +16,7 @@ const inviteTenant = async (tenantId: number) => {
     }
 
     const response = await fetch(`${process.env.API_URL}/api/v1/invite-tenant/${tenantId}`, {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${accessToken}`,

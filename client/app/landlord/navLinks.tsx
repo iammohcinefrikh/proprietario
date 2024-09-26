@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { LineChart, Users, LayoutDashboard, Building, House, Info, MessagesSquare, Files} from "lucide-react";
+import { LineChart, Users, LayoutDashboard, House, Info, MessagesSquare, Files, KeyRound} from "lucide-react";
 
 export default function NavigationLinks() {
   const pathname = usePathname();
@@ -22,13 +22,17 @@ export default function NavigationLinks() {
         <Users className="h-4 w-4" />
         Locataires
       </Link>
+      <Link href="/landlord/tenancies" className={`flex items-center gap-3 rounded-lg px-3 py-2 ${pathname === "/landlord/tenancies" ? "bg-muted text-primary" : "text-muted-foreground"} transition-all hover:text-primary`}>
+        <KeyRound className="h-4 w-4" />
+        Locations
+      </Link>
+      <Link href="/landlord/requests" className={`flex items-center gap-3 rounded-lg px-3 py-2 ${pathname === "/landlord/requests" ? "bg-muted text-primary" : "text-muted-foreground"} transition-all hover:text-primary`}>
+        <Info className="h-4 w-4" />
+        Demandes
+      </Link>
       <Link href="#" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary">
         <LineChart className="h-4 w-4" />
         Finances
-      </Link>
-      <Link href="#" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary">
-        <Info className="h-4 w-4" />
-        Demandes
       </Link>
       <Link href="#" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary">
         <MessagesSquare className="h-4 w-4" />

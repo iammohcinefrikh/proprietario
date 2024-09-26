@@ -54,8 +54,8 @@ const register = async (request: Request, response: Response) => {
       });
 
       sendEmail(`${userFirstName} ${userLastName}`, userEmail, "Bienvenue sur Proprietario!", `
-        <p>Bienvenue ${userFirstName},<br>
-        Pour confirmer votre compte, veuillez suivre ce lien: <a href="${process.env.DOMAIN_URL}/activate/${newUser.user_id}/${newUser.user_verification_token}">${process.env.DOMAIN_URL}/activate/${newUser.user_id}/${newUser.user_verification_token}</a></p>
+        <p>Bienvenue ${userFirstName},</p>
+        <p>Pour confirmer votre compte, veuillez suivre ce lien: <a href="${process.env.DOMAIN_URL}/activate/${newUser.user_id}/${newUser.user_verification_token}">${process.env.DOMAIN_URL}/activate/${newUser.user_id}/${newUser.user_verification_token}</a></p>
         <p>Cordialement,<br>
         L'équipe de Proprietario</p>
       `, `

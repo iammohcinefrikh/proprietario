@@ -11,11 +11,11 @@ model user {
   user_id                     Int        @id @default(dbgenerated("nextval('_user_user_id_seq'::regclass)"))
   user_email                  String     @unique @db.VarChar(64)
   user_password               String     @db.VarChar(255)
-  user_type                   String     @db.VarChar(32)
+  user_type                   String
   user_active                 Boolean    @default(false)
   user_verification_token     String?    @db.VarChar(64)
   user_verification_completed Boolean    @default(false)
-  user_created_at             DateTime   @default(now()) @db.Timestamptz(6)
+  user_created_at             DateTime   @default(now()) @db.Timestamp(6)
   landlord                    landlord[]
   tenant                      tenant[]
 
@@ -26,9 +26,9 @@ model expense {
   expense_id          Int       @id @default(autoincrement())
   expense_amount      Decimal   @db.Decimal(10, 2)
   expense_name        String    @unique @db.VarChar(128)
-  expense_date        DateTime  @db.Timestamptz(6)
-  expense_created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  expense_modified_at DateTime? @default(now()) @db.Timestamptz(6)
+  expense_date        DateTime  @db.Timestamp(6)
+  expense_created_at  DateTime  @default(now()) @db.Timestamp(6)
+  expense_modified_at DateTime? @default(now()) @db.Timestamp(6)
   unit_id             Int
   landlord_id         Int
   landlord            landlord  @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
@@ -40,8 +40,8 @@ model landlord {
   landlord_first_name   String                @db.VarChar(32)
   landlord_last_name    String                @db.VarChar(32)
   landlord_phone_number String?               @db.VarChar(10)
-  landlord_created_at   DateTime              @default(now()) @db.Timestamptz(6)
-  landlord_updated_at   DateTime?             @default(now()) @db.Timestamptz(6)
+  landlord_created_at   DateTime              @default(now()) @db.Timestamp(6)
+  landlord_updated_at   DateTime?             @default(now()) @db.Timestamp(6)
   user_id               Int
   expense               expense[]
   user                  user                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
@@ -52,14 +52,15 @@ model landlord {
 }
 
 model landlord_has_tenant {
-  landlord_id         Int
-  tenant_id           Int
-  tenant_first_name   String?  @db.VarChar(32)
-  tenant_last_name    String?  @db.VarChar(32)
-  tenant_phone_number String?  @db.VarChar(10)
-  invitation_status   String   @default("not_invited") @db.VarChar(32)
-  landlord            landlord @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
-  tenant              tenant   @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
+  landlord_id              Int
+  tenant_id                Int
+  tenant_first_name        String?  @db.VarChar(32)
+  tenant_last_name         String?  @db.VarChar(32)
+  tenant_phone_number      String?  @db.VarChar(10)
+  tenant_invitation_status String   @default("not_invited")
+  tenant_invitation_token  String?  @db.VarChar(64)
+  landlord                 landlord @relation(fields: [landlord_id], references: [landlord_id], onDelete: NoAction, onUpdate: NoAction)
+  tenant                   tenant   @relation(fields: [tenant_id], references: [tenant_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([landlord_id, tenant_id])
 }
@@ -69,10 +70,10 @@ model request {
   request_title      String    @db.VarChar(128)
   request_body       String    @db.VarChar(512)
   request_response   String?   @db.VarChar(512)
-  request_priority   String    @db.VarChar(32)
-  request_status     String    @db.VarChar(32)
-  request_created_at DateTime  @default(now()) @db.Timestamptz(6)
-  request_closed_at  DateTime? @db.Timestamptz(6)
+  request_priority   String
+  request_status     String
+  request_created_at DateTime  @default(now()) @db.Timestamp(6)
+  request_closed_at  DateTime? @db.Timestamp(6)
   tenant_id          Int
   unit_id            Int
   landlord_id        Int
@@ -86,8 +87,8 @@ model tenancy {
   tenancy_name        String    @unique @db.VarChar(255)
   tenancy_start_date  DateTime  @db.Date
   tenancy_end_date    DateTime  @db.Date
-  tenancy_created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  tenancy_modified_at DateTime? @default(now()) @db.Timestamptz(6)
+  tenancy_created_at  DateTime  @default(now()) @db.Timestamp(6)
+  tenancy_modified_at DateTime? @default(now()) @db.Timestamp(6)
   tenancy_amount      Decimal   @db.Decimal(10, 2)
   unit_id             Int
   tenant_id           Int
@@ -102,8 +103,8 @@ model tenant {
   tenant_first_name   String?               @db.VarChar(32)
   tenant_last_name    String?               @db.VarChar(32)
   tenant_phone_number String?               @db.VarChar(10)
-  tenant_created_at   DateTime              @default(now()) @db.Timestamptz(6)
-  tenant_updated_at   DateTime?             @default(now()) @db.Timestamptz(6)
+  tenant_created_at   DateTime              @default(now()) @db.Timestamp(6)
+  tenant_updated_at   DateTime?             @default(now()) @db.Timestamp(6)
   user_id             Int
   landlord_has_tenant landlord_has_tenant[]
   request             request[]
@@ -114,9 +115,9 @@ model tenant {
 model unit {
   unit_id         Int       @id @default(autoincrement())
   unit_name       String    @db.VarChar(128)
-  unit_type       String    @db.VarChar(32)
-  unit_created_at DateTime  @default(now()) @db.Timestamptz(6)
-  unit_updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  unit_type       String
+  unit_created_at DateTime  @default(now()) @db.Timestamp(6)
+  unit_updated_at DateTime? @default(now()) @db.Timestamp(6)
   landlord_id     Int
   expense         expense[]
   request         request[]

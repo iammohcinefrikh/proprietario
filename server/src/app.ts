@@ -21,7 +21,7 @@ app.use(cors({
 app.use(authentificationRoutes);
 app.use(statsRoute);
 app.use(unitRoutes);
-// app.use(tenantRoutes);
+app.use(tenantRoutes);
 
 const PORT = process.env.PORT || 8080;
 

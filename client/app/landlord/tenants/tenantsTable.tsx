@@ -39,20 +39,20 @@ const modifyFormSchema = z.object({
 
 interface Tenant {
   tenant_id: number;
-  tenant_first_name: string;
-  tenant_last_name: string;
-  tenant_phone_number: string;
-  user: {
-    user_email: string;
-  };
-  landlord_has_tenant: Array<{
-    invitation_status: "not_invited" | "pending" | "accepted";
-  }>;
-  tenancy: Array<{
-    unit: {
-      unit_name: string;
+  tenant_first_name: string | null;
+  tenant_last_name: string | null;
+  tenant_phone_number: string | null;
+  tenant_invitation_status: "not_invited" | "pending" | "accepted";
+  tenant: {
+    user: {
+      user_email: string;
     };
-  }>;
+    tenancy: Array<{
+      unit: {
+        unit_name: string;
+      };
+    }>;
+  };
 }
 
 export default function TenantsTable() {
@@ -126,6 +126,7 @@ export default function TenantsTable() {
         
         if (response?.statusCode === 200) {
           setTenants(response?.tenants);
+          console.log()
         }
 
         else {
@@ -175,7 +176,7 @@ export default function TenantsTable() {
   };
 
   const handleInviteOpen = (tenant: Tenant) => {
-    setDeleteDialog(prevState => ({
+    setInviteDialog(prevState => ({
       ...prevState,
       isOpen: true,
       tenantToInvite: tenant
@@ -337,12 +338,12 @@ export default function TenantsTable() {
     }));
 
     try {
-      const response = await inviteTenant(inviteDialog.tenantToInvite.tenant_id)
+      const response = await inviteTenant(inviteDialog.tenantToInvite.tenant_id);
 
       if (response.statusCode === 200) {
-        setTenants((prevTenants) => prevTenants.map((tenant) => tenant.tenant_id === inviteDialog.tenantToInvite?.tenant_id ? { ...tenant, landlord_has_tenant: [ ...tenant.landlord_has_tenant, { invitation_status: "pending" }] } : tenant));
+        setTenants((prevTenants) => prevTenants.map((tenant) => tenant.tenant_id === inviteDialog.tenantToInvite?.tenant_id ? { ...tenant, tenant_invitation_status: "pending" } : tenant));
         
-        setModifyDialog(prevState => ({
+        setInviteDialog(prevState => ({
           ...prevState,
           isSuccess: true,
           successMessage: response.message
@@ -350,7 +351,7 @@ export default function TenantsTable() {
       }
       
       else {
-        setModifyDialog(prevState => ({
+        setInviteDialog(prevState => ({
           ...prevState,
           isError: true,
           errorMessage: response.message
@@ -359,7 +360,7 @@ export default function TenantsTable() {
     }
     
     catch (error) {
-      setModifyDialog(prevState => ({
+      setInviteDialog(prevState => ({
         ...prevState,
         isError: true,
         errorMessage: "Une erreur inattendue s'est produite."
@@ -367,7 +368,7 @@ export default function TenantsTable() {
     }
     
     finally {
-      setModifyDialog(prevState => ({
+      setInviteDialog(prevState => ({
         ...prevState,
         isLoading: false
       }));
@@ -586,7 +587,7 @@ export default function TenantsTable() {
                 ) : deleteDialog.isLoading ? (
                   <div className="flex flex-col items-center gap-2 text-center">
                     <RefreshCw className="animate-spin h-8 w-8" />
-                    <p className="text-sm text-muted-foreground">Suppression de la propriété...</p>
+                    <p className="text-sm text-muted-foreground">Suppression du locataire...</p>
                   </div>
                 ) : deleteDialog.isSuccess ? (
                   <>
@@ -607,6 +608,48 @@ export default function TenantsTable() {
                       </div>
                     </div>
                     <Button onClick={(e) => { e.preventDefault(); setDeleteDialog(prevState => ({ ...prevState, isOpen: false, isError: false, errorMessage: "" })); }}>Fermer</Button>
+                  </>
+                ) : null}
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={inviteDialog.isOpen} onOpenChange={(open) => setInviteDialog((prevState) => ({ ...prevState, isOpen: open }))}>
+              <DialogContent showCloseIcon={false}>
+                { !inviteDialog.isLoading && !inviteDialog.isSuccess && !inviteDialog.isError ? (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle>Inviter le locataire</DialogTitle>
+                      <DialogDescription>Êtes-vous sûr de vouloir inviter ce locataire à l'application? Cette action lui enverra une invitation par e-mail.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button variant="outline" onClick={(e) => { e.preventDefault(); setInviteDialog((prevState) => ({ ...prevState, isOpen: false })); }}>Annuler</Button>
+                      <Button onClick={handleTenantInvitation} className="w-full">Inviter</Button>
+                    </div>
+                  </>
+                ) : inviteDialog.isLoading ? (
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <RefreshCw className="animate-spin h-8 w-8" />
+                    <p className="text-sm text-muted-foreground">Invitant le locataire...</p>
+                  </div>
+                ) : inviteDialog.isSuccess ? (
+                  <>
+                    <div className="flex flex-1 items-center justify-center">
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <CircleCheck className="h-8 w-8 stroke-green-600" />
+                        <p className="text-base font-medium text-green-600">{inviteDialog.successMessage}</p>
+                      </div>
+                    </div>
+                    <Button onClick={(e) => { e.preventDefault(); setInviteDialog(prevState => ({ ...prevState, isOpen: false, isSuccess: false, successMessage: "" })); }}>Fermer</Button>
+                  </>
+                ) : inviteDialog.isError ? (
+                  <>
+                    <div className="flex flex-1 items-center justify-center">
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <CircleX className="h-8 w-8 stroke-rose-600" />
+                        <p className="text-base font-medium text-rose-600">{inviteDialog.errorMessage}</p>
+                      </div>
+                    </div>
+                    <Button onClick={(e) => { e.preventDefault(); setInviteDialog(prevState => ({ ...prevState, isOpen: false, isError: false, errorMessage: "" })); }}>Fermer</Button>
                   </>
                 ) : null}
               </DialogContent>
@@ -635,39 +678,24 @@ export default function TenantsTable() {
                   </TableHeader>
                   <TableBody>
                     { tenants.map((tenant) => {
-                      if (tenant.tenancy.length === 0) {
+                      const { tenant_first_name, tenant_last_name, tenant_phone_number, tenant_invitation_status, tenant: tenantData } = tenant;
+
+                      if (tenantData.tenancy.length <= 1 ) {
                         return (
                           <TableRow key={tenant.tenant_id}>
-                            <TableCell className="font-medium">{`${tenant.tenant_first_name} ${tenant.tenant_last_name}`}</TableCell>
-                            <TableCell></TableCell>
-                            <TableCell>{tenant.tenant_phone_number}</TableCell>
-                            <TableCell>{tenant.user.user_email}</TableCell>
-                            <TableCell>{tenant.landlord_has_tenant[0].invitation_status === "not_invited" ? <Badge className="cursor-pointer">Inviter</Badge> : tenant.landlord_has_tenant[0].invitation_status === "pending" ? <Badge variant="outline">En attente</Badge> : <Badge variant="secondary">Actif</Badge>}</TableCell>
+                            <TableCell className="font-medium">{`${tenant_first_name} ${tenant_last_name}`}</TableCell>
+                            <TableCell>{tenantData?.tenancy[0]?.unit?.unit_name || ""}</TableCell>
+                            <TableCell>{tenant_phone_number}</TableCell>
+                            <TableCell>{tenantData.user.user_email}</TableCell>
                             <TableCell>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button aria-haspopup="true" size="icon" variant="ghost">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Menu à bascule</span>
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                  <DropdownMenuItem onClick={() => handleEditOpen(tenant)}>Modifier</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleDeleteOpen(tenant)}>Supprimer</DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                              {tenant_invitation_status === "not_invited" ? (
+                                <Badge className="cursor-pointer" onClick={() => handleInviteOpen(tenant)}>Inviter</Badge>
+                              ) : tenant_invitation_status === "pending" ? (
+                                <Badge variant="outline">En attente</Badge>
+                              ) : (
+                                <Badge variant="secondary">Actif</Badge>
+                              )}
                             </TableCell>
-                          </TableRow>
-                        );
-                      } else if (tenant.tenancy.length === 1) {
-                        return (
-                          <TableRow key={tenant.tenant_id}>
-                            <TableCell className="font-medium">{`${tenant.tenant_first_name} ${tenant.tenant_last_name}`}</TableCell>
-                            <TableCell>{tenant.tenancy[0].unit.unit_name}</TableCell>
-                            <TableCell>{tenant.tenant_phone_number}</TableCell>
-                            <TableCell>{tenant.user.user_email}</TableCell>
-                            <TableCell>{tenant.landlord_has_tenant[0].invitation_status === "not_invited" ? <Badge className="cursor-pointer">Inviter</Badge> : tenant.landlord_has_tenant[0].invitation_status === "pending" ? <Badge variant="outline">En attente</Badge> : <Badge variant="secondary">Actif</Badge>}</TableCell>
                             <TableCell>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -686,13 +714,21 @@ export default function TenantsTable() {
                           </TableRow>
                         );
                       } else {
-                        return tenant.tenancy.map((tenancy, index) => (
+                        return tenantData.tenancy.map((tenancy, index) => (
                           <TableRow key={`${tenant.tenant_id}-${index}`}>
-                            <TableCell className="font-medium">{`${tenant.tenant_first_name} ${tenant.tenant_last_name}`}</TableCell>
+                            <TableCell className="font-medium">{`${tenant_first_name} ${tenant_last_name}`}</TableCell>
                             <TableCell>{tenancy.unit?.unit_name || "N/A"}</TableCell>
-                            <TableCell>{tenant.tenant_phone_number}</TableCell>
-                            <TableCell>{tenant.user.user_email}</TableCell>
-                            <TableCell>{tenant.landlord_has_tenant[0].invitation_status === "not_invited" ? <Badge className="cursor-pointer">Inviter</Badge> : tenant.landlord_has_tenant[0].invitation_status === "pending" ? <Badge variant="outline">En attente</Badge> : <Badge variant="secondary">Actif</Badge>}</TableCell>
+                            <TableCell>{tenant_phone_number}</TableCell>
+                            <TableCell>{tenantData.user.user_email}</TableCell>
+                            <TableCell>
+                              {tenant_invitation_status === "not_invited" ? (
+                                <Badge className="cursor-pointer" onClick={() => handleInviteOpen(tenant)}>Inviter</Badge>
+                              ) : tenant_invitation_status === "pending" ? (
+                                <Badge variant="outline">En attente</Badge>
+                              ) : (
+                                <Badge variant="secondary">Actif</Badge>
+                              )}
+                            </TableCell>
                             <TableCell>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

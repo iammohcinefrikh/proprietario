@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import handleResponse from "../helpers/handleResponseHelper";
 import generateRandomToken from "../utils/generateRandomTokenUtil";
 import hashPassword from "../utils/hashPasswordUtil";
+import sendEmail from "../utils/sendEmailUtil";
 
 const prisma = new PrismaClient();
 
@@ -15,40 +16,35 @@ const getTenants = async (request: RequestWithUser, response: Response) => {
   try {
     const { userId } = request.user;
 
-    const existingTenants = await prisma.tenant.findMany({
+    const existingTenants = await prisma.landlord_has_tenant.findMany({
       where: {
-        landlord_has_tenant: {
-          some: {
-            landlord_id: userId
-          }
-        }
+        landlord_id: userId,
       },
       select: {
         tenant_id: true,
         tenant_first_name: true,
         tenant_last_name: true,
         tenant_phone_number: true,
-        user: {
+        tenant_invitation_status: true,
+        tenant: {
           select: {
-            user_email: true
-          }
-        },
-        landlord_has_tenant: {
-          select: {
-            invitation_status: true
-          }
-        },
-        tenancy: {
-          where: {
-            landlord_id: userId,
-            tenancy_end_date: {
-              gte: new Date()
-            }
-          },
-          select: {
-            unit: {
+            user: {
               select: {
-                unit_name: true
+                user_email: true
+              }
+            },
+            tenancy: {
+              where: {
+                tenancy_end_date: {
+                  gte: new Date(),
+                }
+              },
+              select: {
+                unit: {
+                  select: {
+                    unit_name: true
+                  }
+                }
               }
             }
           }
@@ -97,19 +93,47 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
           }
   
           else {
+
             const newRelation = await prisma.landlord_has_tenant.create({
               data: {
                 landlord_id: userId,
                 tenant_id: existingTenant.tenant_id,
-                invitation_status: tenantIsInvited === "true" ? "pending" : "accepted"
+                tenant_first_name: tenantFirstName,
+                tenant_last_name: tenantLastName,
+                tenant_phone_number: tenantPhoneNumber,
+                tenant_invitation_status: tenantIsInvited === "true" ? "pending" : "not_invited",
+                tenant_invitation_token: generateRandomToken(64)
               }
             });
   
-            if (tenantIsInvited) {
-              // send email
+            if (tenantIsInvited === "true") {
+              const existingLandlord = await prisma.landlord.findFirst({
+                where: {
+                  landlord_id: userId
+                }
+              });
+
+              sendEmail(`${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario`, tenantEmail, "Invitation à ouvrir votre compte Proprietario", `
+                <p>Bonjour ${tenantFirstName},<p>
+                <p>${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.</p>
+
+                <p>Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: <a href="${process.env.DOMAIN_URL}/accept/${userId}/${existingUser.user_id}/${newRelation.tenant_invitation_token}">${process.env.DOMAIN_URL}/accept/${userId}/${existingUser.user_id}/${newRelation.tenant_invitation_token}</a></p>
+                
+                <p>Cordialement,<br>
+                ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario</p>
+              `, `
+                Bonjour ${tenantFirstName},
+
+                ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.
+
+                Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: ${process.env.DOMAIN_URL}/accept/${userId}/${existingUser.user_id}/${newRelation.tenant_invitation_token}
+                
+                Cordialement,
+                ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario
+              `);
             }
 
-            const addedTenant = await prisma.tenant.findUnique({
+            const addedTenant = await prisma.landlord_has_tenant.findFirst({
               where: {
                 tenant_id: existingTenant.tenant_id
               },
@@ -118,27 +142,26 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
                 tenant_first_name: true,
                 tenant_last_name: true,
                 tenant_phone_number: true,
-                user: {
+                tenant_invitation_status: true,
+                tenant: {
                   select: {
-                    user_email: true
-                  }
-                },
-                landlord_has_tenant: {
-                  select: {
-                    invitation_status: true
-                  }
-                },
-                tenancy: {
-                  where: {
-                    landlord_id: userId,
-                    tenancy_end_date: {
-                      gte: new Date()
-                    }
-                  },
-                  select: {
-                    unit: {
+                    user: {
                       select: {
-                        unit_name: true
+                        user_email: true
+                      }
+                    },
+                    tenancy: {
+                      where: {
+                        tenancy_end_date: {
+                          gte: new Date(),
+                        }
+                      },
+                      select: {
+                        unit: {
+                          select: {
+                            unit_name: true
+                          }
+                        }
                       }
                     }
                   }
@@ -148,6 +171,10 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
 
             return handleResponse(response, 200, "success", "OK", "Locataire ajouté avec succès.", { "tenant": addedTenant });
           }
+        }
+
+        else {
+          return handleResponse(response, 404, "error", "Not Found", "Locataire non trouvé.");
         }
       }
 
@@ -159,13 +186,13 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
     else {
       const generatedPassword = generateRandomToken(16);
 
-      const [newTenant] = await prisma.$transaction(async (prisma) => {
+      const [newUser, newTenant, newRelation] = await prisma.$transaction(async (prisma) => {
         const newUser = await prisma.user.create({
           data: {
             user_email: tenantEmail,
             user_password: hashPassword(generatedPassword),
             user_type: "tenant",
-            
+            user_verification_token: generateRandomToken(64)
           }
         });
       
@@ -182,18 +209,44 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
           data: {
             landlord_id: userId,
             tenant_id: newTenant.tenant_id,
-            invitation_status: tenantIsInvited === "true" ? "pending" : "not_invited"
+            tenant_first_name: tenantFirstName,
+            tenant_last_name: tenantLastName,
+            tenant_phone_number: tenantPhoneNumber,
+            tenant_invitation_status: tenantIsInvited === "true" ? "pending" : "not_invited",
+            tenant_invitation_token: generateRandomToken(64)
           }
         });
       
-        return [newTenant];
+        return [newUser, newTenant, newRelation];
       });
 
-      if (tenantIsInvited) {
-        // send email
+      if (tenantIsInvited === "true") {
+        const existingLandlord = await prisma.landlord.findFirst({
+          where: {
+            landlord_id: userId
+          }
+        });
+
+        sendEmail(`${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario`, tenantEmail, "Invitation à ouvrir votre compte Proprietario", `
+          <p>Bonjour ${tenantFirstName},<p>
+          <p>${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.</p>
+
+          <p>Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: <a href="${process.env.DOMAIN_URL}/accept/${userId}/${newUser.user_id}/${newRelation.tenant_invitation_token}">${process.env.DOMAIN_URL}/accept/${userId}/${newUser.user_id}/${newRelation.tenant_invitation_token}</a></p>
+          
+          <p>Cordialement,<br>
+          ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario</p>
+        `, `
+          Bonjour ${tenantFirstName},
+          ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.
+
+          Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: ${process.env.DOMAIN_URL}/accept/${userId}/${newUser.user_id}/${newRelation.tenant_invitation_token}
+          
+          Cordialement,
+          ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario
+        `);
       }
 
-      const addedTenant = await prisma.tenant.findUnique({
+      const addedTenant = await prisma.landlord_has_tenant.findFirst({
         where: {
           tenant_id: newTenant.tenant_id
         },
@@ -202,27 +255,26 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
           tenant_first_name: true,
           tenant_last_name: true,
           tenant_phone_number: true,
-          user: {
+          tenant_invitation_status: true,
+          tenant: {
             select: {
-              user_email: true
-            }
-          },
-          landlord_has_tenant: {
-            select: {
-              invitation_status: true
-            }
-          },
-          tenancy: {
-            where: {
-              landlord_id: userId,
-              tenancy_end_date: {
-                gte: new Date()
-              }
-            },
-            select: {
-              unit: {
+              user: {
                 select: {
-                  unit_name: true
+                  user_email: true
+                }
+              },
+              tenancy: {
+                where: {
+                  tenancy_end_date: {
+                    gte: new Date(),
+                  }
+                },
+                select: {
+                  unit: {
+                    select: {
+                      unit_name: true
+                    }
+                  }
                 }
               }
             }
@@ -256,9 +308,12 @@ const updateTenant = async (request: RequestWithUser, response: Response) => {
       handleResponse(response, 404, "error", "Not Found", "Locataire non trouvée.");
     }
 
-    const updatedTenant = await prisma.tenant.update({
+    const updatedTenant = await prisma.landlord_has_tenant.update({
       where: {
-        tenant_id: +tenantId
+        landlord_id_tenant_id: {
+          landlord_id: userId,
+          tenant_id: +tenantId
+        }
       },
       data: {
         tenant_first_name: tenantFirstName,
@@ -270,27 +325,26 @@ const updateTenant = async (request: RequestWithUser, response: Response) => {
         tenant_first_name: true,
         tenant_last_name: true,
         tenant_phone_number: true,
-        user: {
+        tenant_invitation_status: true,
+        tenant: {
           select: {
-            user_email: true
-          }
-        },
-        landlord_has_tenant: {
-          select: {
-            invitation_status: true
-          }
-        },
-        tenancy: {
-          where: {
-            landlord_id: userId,
-            tenancy_end_date: {
-              gte: new Date()
-            }
-          },
-          select: {
-            unit: {
+            user: {
               select: {
-                unit_name: true
+                user_email: true
+              }
+            },
+            tenancy: {
+              where: {
+                tenancy_end_date: {
+                  gte: new Date(),
+                }
+              },
+              select: {
+                unit: {
+                  select: {
+                    unit_name: true
+                  }
+                }
               }
             }
           }
@@ -311,9 +365,23 @@ const deleteTenant = async (request: RequestWithUser, response: Response) => {
     const { userId } = request.user;
     const { tenantId } = request.params;
 
-    const existingTenant = await prisma.tenant.findUnique({
+    const existingTenant = await prisma.landlord_has_tenant.findUnique({
       where: {
-        tenant_id: +tenantId
+        landlord_id_tenant_id: {
+          landlord_id: userId,
+          tenant_id: +tenantId
+        }
+      },
+      select: {
+        tenant: {
+          select: {
+            user: {
+              select: {
+                user_id: true
+              }
+            }
+          }
+        }
       }
     });
 
@@ -323,6 +391,7 @@ const deleteTenant = async (request: RequestWithUser, response: Response) => {
 
     const existingTenancy = await prisma.tenancy.findFirst({
       where: {
+        landlord_id: userId,
         tenant_id: +tenantId
       }
     });
@@ -354,7 +423,7 @@ const deleteTenant = async (request: RequestWithUser, response: Response) => {
 
         await prisma.user.delete({
           where: {
-            user_id: existingTenant.user_id
+            user_id: existingTenant.tenant.user.user_id
           }
         });
       });
@@ -406,12 +475,12 @@ const inviteTenant = async (request: RequestWithUser, response: Response) => {
     });
     
     if (existingRelation) {
-      if (existingRelation.invitation_status !== "not_invited") {
+      if (existingRelation.tenant_invitation_status !== "not_invited") {
         return handleResponse(response, 409, "error", "Conflict", "Le locataire a déjà été invité.");
       }
       
       else {
-        await prisma.landlord_has_tenant.update({
+        const existingTenant = await prisma.landlord_has_tenant.update({
           where: {
             landlord_id_tenant_id: {
               landlord_id: userId,
@@ -419,11 +488,48 @@ const inviteTenant = async (request: RequestWithUser, response: Response) => {
             }
           },
           data: {
-            invitation_status: "pending"
+            tenant_invitation_status: "pending"
+          },
+          select: {
+            tenant_id: true,
+            tenant_first_name: true,
+            tenant_last_name: true,
+            tenant_invitation_token: true,
+            tenant: {
+              select: {
+                user: {
+                  select: {
+                    user_email: true
+                  }
+                }
+              }
+            }
           }
         });
 
-        // send email
+        const existingLandlord = await prisma.landlord.findFirst({
+          where: {
+            landlord_id: userId
+          }
+        });
+
+        sendEmail(`${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario`, existingTenant.tenant.user.user_email, "Invitation à ouvrir votre compte Proprietario", `
+          <p>Bonjour ${existingTenant.tenant_first_name},<p>
+          <p>${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.</p>
+
+          <p>Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: <a href="${process.env.DOMAIN_URL}/accept/${userId}/${tenantId}/${existingTenant.tenant_invitation_token}">${process.env.DOMAIN_URL}/accept/${userId}/${tenantId}/${existingTenant.tenant_invitation_token}</a></p>
+          
+          <p>Cordialement,<br>
+          ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario</p>
+        `, `
+          Bonjour ${existingTenant},
+          ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.
+
+          Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: ${process.env.DOMAIN_URL}/accept/${userId}/${tenantId}/${existingTenant.tenant_invitation_token}
+          
+          Cordialement,
+          ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario
+        `);
 
         return handleResponse(response, 200, "success", "OK", "Locataire invité avec succès.");
       }
