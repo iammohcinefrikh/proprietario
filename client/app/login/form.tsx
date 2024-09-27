@@ -20,8 +20,12 @@ const loginFormSchema = z.object({
     .min(1, { message: "L'adresse email est requise." })
     .email({ message: "Veuillez saisir une adresse email valide." }),
   userPassword: z.string()
-    .min(8, { message: "Veuillez saisir un mot de passe valide." })
-    .max(32, { message: "Le mot de passe est trop long." })
+  .min(8, { message: "Le mot de passe doit comporter au moins 8 caractères." })
+  .max(64, { message: "Le mot de passe ne doit pas dépasser 64 caractères." })
+  .regex(/[a-z]/, { message: "Le mot de passe doit inclure une lettre minuscule." })
+  .regex(/[A-Z]/, { message: "Le mot de passe doit inclure une lettre majuscule." })
+  .regex(/\d/, { message: "Le mot de passe doit inclure un chiffre." })
+  .regex(/[^a-zA-Z0-9]/, { message: "Le mot de passe doit inclure un symbole." })
 });
 
 export default function LoginForm() {
