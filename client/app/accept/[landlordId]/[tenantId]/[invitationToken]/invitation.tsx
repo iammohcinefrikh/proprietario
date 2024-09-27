@@ -137,7 +137,7 @@ export default function ActivationStatus() {
       ) : isValid ? (
         <div className="flex flex-col sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Configurer votre compte</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Configurer un mot de passe</h1>
             <p className="white text-sm text-muted-foreground">Saisissez vos informations ci-dessous pour activer votre compte</p>
           </div>
           <Form {...form}>

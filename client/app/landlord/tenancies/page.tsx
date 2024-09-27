@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 
+import TenanciesTable from "./tenanciesTable";
+
 export const metadata: Metadata = {
   title: "Proprietario - Locations"
 };
@@ -7,7 +9,7 @@ export const metadata: Metadata = {
 export default function Tenants() {
   return (
     <>
-      <p>Tenancies page</p>
+      <TenanciesTable />
     </>
   )
 }

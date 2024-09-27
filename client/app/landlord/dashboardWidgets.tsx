@@ -5,7 +5,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, Pie, PieChart } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "../../components/ui/chart";
-import { TriangleAlert, House, RefreshCw, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { TriangleAlert, House, Loader, TrendingDown, TrendingUp, Users } from "lucide-react";
 
 import getStats from "./getStats";
 
@@ -73,8 +73,9 @@ export default function DashboardWidgets() {
   return (
     <>
       { isLoading ? (
-        <div className="flex flex-col w-full h-full justify-center items-center">
-          <RefreshCw className="h-10 w-10 text-muted-foreground animate-spin" />
+        <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
+          <Loader className="h-7 w-7 text-muted-foreground animate-spin" />
+          <p>Récupération des données du tableau de bord...</p>
         </div>
       ) : ( isError ? (
         <div className="flex flex-col w-full h-full justify-center items-center">
@@ -84,7 +85,7 @@ export default function DashboardWidgets() {
       ) : (
         <div className="flex flex-col gap-4 md:gap-6">
           <div className="flex flex-col">
-            <h1 className="text-lg font-bold md:text-2xl">Vue d'ensemble</h1>
+            <h1 className="text-lg font-bold md:text-2xl">Tableau de bord</h1>
             <p className="text-sm text-muted-foreground mt-1">Informations et activités en temps réel sur vos propriétés</p>
           </div>
 
@@ -139,10 +140,8 @@ export default function DashboardWidgets() {
                       </BarChart>
                     </ChartContainer>
                   ) : (
-                    <div className="flex flex-col justify-center items-center w-full h-[250px] mt-6 border-2 border-dashed rounded-lg">
-                      <TriangleAlert className="h-7 w-7 text-muted-foreground" />
-                      <h3 className="font-semibold mt-3 text-muted-foreground text-center">Aucune donnée disponible</h3>
-                      <p className="text-sm text-muted-foreground text-center">Aucune dépense ou revenu n'a encore été ajouté</p>
+                    <div className="flex flex-col justify-center items-center w-full h-[250px] mt-6 border rounded-lg bg-muted/50">
+                      <p className="text-sm text-muted-foreground text-center md:text-base">Il n'y a pas encore de données à afficher.</p>
                     </div>
                   ) }
               </CardContent>
@@ -164,10 +163,8 @@ export default function DashboardWidgets() {
                     </PieChart>
                   </ChartContainer>
                 ) : (
-                  <div className="flex flex-col justify-center items-center w-full h-[250px] mt-6 border-2 border-dashed rounded-lg">
-                    <TriangleAlert className="h-7 w-7 text-muted-foreground" />
-                    <h3 className="font-semibold mt-3 text-muted-foreground text-center">Aucune donnée disponible</h3>
-                    <p className="text-sm text-muted-foreground text-center">Aucune propriété ou location n'a encore été ajoutée</p>
+                  <div className="flex flex-col justify-center items-center w-full h-[250px] mt-6 border rounded-lg bg-muted/50">
+                    <p className="text-sm text-muted-foreground text-center md:text-base">Il n'y a pas encore de données à afficher.</p>
                   </div>
                 ) }
               </CardContent>

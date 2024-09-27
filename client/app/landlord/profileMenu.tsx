@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleUser } from "lucide-react";
+import { UserRound } from "lucide-react";
 
 import destroySession from "../../utils/destroySessionUtil";
 
@@ -15,8 +15,8 @@ export default function ProfileMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="icon" className="rounded-full">
-          <CircleUser className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="rounded-full">
+          <UserRound className="h-5 w-5" />
           <span className="sr-only">Afficher le menu utilisateur</span>
         </Button>
       </DropdownMenuTrigger>

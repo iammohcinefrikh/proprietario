@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { TriangleAlert, RefreshCw, CirclePlus, MoreHorizontal, CircleCheck, CircleX } from "lucide-react";
+import { TriangleAlert, RefreshCw, Loader, CirclePlus, MoreHorizontal, CircleCheck, CircleX } from "lucide-react";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../components/ui/dialog";
@@ -378,13 +378,14 @@ export default function TenantsTable() {
   return (
     <>
       { isLoading ? (
-        <div className="flex flex-col w-full h-full justify-center items-center">
-          <RefreshCw className="h-10 w-10 text-muted-foreground animate-spin" />
+        <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
+          <Loader className="h-7 w-7 animate-spin" />
+          <p>Récupération des données du locataire...</p>
         </div>
       ) : ( isError ? (
-        <div className="flex flex-col w-full h-full justify-center items-center">
-          <TriangleAlert className="h-7 w-7 text-muted-foreground" />
-          <h3 className="font-semibold mt-3 text-muted-foreground text-center">Une erreur s'est produite lors de la récupération des propriétés</h3>
+        <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
+          <CircleX className="h-7 w-7" />
+          <p>Une erreur s'est produite lors de la récupération des données des locataires</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4 md:gap-6">
@@ -657,8 +658,8 @@ export default function TenantsTable() {
           </div>
 
           { !tenants.length ? (
-            <div className="flex flex-col justify-center items-center border-2 border-dashed rounded-lg w-full h-[450px] mt-16 p-4 md:p-6">
-              <p className="text-center text-sm text-muted-foreground md:text-base">Il semble que vous n'ayez pas encore ajouté d'unités, essayez d'en ajouter une nouvelle.</p>
+            <div className="flex flex-col justify-center items-center border rounded-lg w-full h-[450px] mt-16 p-4 bg-muted/50 md:p-6">
+              <p className="text-sm text-muted-foreground text-center md:text-base">Il semble que vous n'ayez pas encore ajouté de locataires, essayez d'en ajouter un nouveau.</p>
             </div>
           ) : (
             <Card className="mt-16">
