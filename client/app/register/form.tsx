@@ -7,26 +7,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../components/ui/form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
+import { CircleCheck, TriangleAlert, Loader } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../components/ui/form";
 import { Label } from "../../components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
 import registerUser from "./registerUser";
-import { CircleCheck, TriangleAlert } from "lucide-react";
 
 const registerFormSchema = z.object({
   userFirstName: z.string()
-    .min(1, { message: "Veuillez saisir un prénom valide." })
-    .max(32, { message: "Le prénom est trop long." }),
+  .min(1, { message: "Veuillez saisir un prénom valide." })
+  .max(32, { message: "Le prénom est trop long." }),
   userLastName: z.string()
-    .min(1, { message: "Veuillez saisir un nom valide." })
-    .max(32, { message: "Le nom est trop long." }),
+  .min(1, { message: "Veuillez saisir un nom valide." })
+  .max(32, { message: "Le nom est trop long." }),
   userEmail: z.string()
-    .min(1, { message: "L'adresse email est requise." })
-    .email({ message: "Veuillez saisir une adresse email valide." }),
+  .min(1, { message: "L'adresse email est requise." })
+  .email({ message: "Veuillez saisir une adresse email valide." }),
   userPassword: z.string()
   .min(8, { message: "Le mot de passe doit comporter au moins 8 caractères." })
   .max(64, { message: "Le mot de passe ne doit pas dépasser 64 caractères." })
@@ -55,33 +55,43 @@ export default function RegisterForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof registerFormSchema>) => {
-    const response = await registerUser(values.userFirstName, values.userLastName, values.userEmail, values.userPassword, userType);
     setIsLoading(true);
+    setIsError(false);
+    setErrorMessage("");
 
-    if (response?.statusCode === 201) {
-      setIsLoading(false);
-      setIsSuccess(true);
-    }
+    try {
+      const response = await registerUser(values.userFirstName, values.userLastName, values.userEmail, values.userPassword, userType);
 
-    else {
-      if (response?.statusCode === 409) {
-        form.setError("userEmail", {
-          type: "manual",
-          message: response?.message
-        });
-
-        form.setValue("userPassword", "");
-        setIsLoading(false);
+      if (response?.statusCode === 201) {
+        setIsSuccess(true);
       }
 
-      else if (response?.statusCode === 500) {
-        setIsError(true);
-        setErrorMessage(response?.message);
+      else {
+        if (response?.statusCode === 409) {
+          form.setError("userEmail", {
+            type: "manual",
+            message: response?.message
+          });
 
-        form.setValue("userPassword", "");
+          form.setValue("userPassword", "");
+        }
+
+        else if (response?.statusCode === 500) {
+          setIsError(true);
+          setErrorMessage(response?.message);
+
+          form.setValue("userPassword", "");
+        }
+
         setIsLoading(false);
       }
     }
+
+    catch (error) {
+      setIsError(true);
+      setErrorMessage("Une erreur s'est produite lors de la création du compte.");
+    }
+    
   }
 
   return (
@@ -159,7 +169,7 @@ export default function RegisterForm() {
                     <p className="text-center text-sm text-muted-foreground">
                       En cliquant sur créer un compte, vous acceptez nos{" "}<Link href="/terms" className="text-muted-foreground underline underline-offset-4 hover:text-primary">Conditions de Service</Link>{" "}et{" "}<Link href="/privacy" className="text-muted-foreground underline underline-offset-4 hover:text-primary">Politique de Confidentialité</Link>.
                     </p>
-                    <Button type="submit" className="w-full" disabled={isLoading}>Créer un compte{isLoading && "..."}</Button>
+                    <Button type="submit" className="w-full" disabled={isLoading}>{isLoading && <Loader className="h-5 w-5 animate-spin mr-2" />}Créer un compte</Button>
                   </form>
                 </Form>
                 <div className="mt-4 text-center text-sm">

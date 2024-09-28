@@ -116,7 +116,7 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
                 <p>Bonjour ${tenantFirstName},<p>
                 <p>${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.</p>
 
-                <p>Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: <a href="${process.env.DOMAIN_URL}/accept/${userId}/${existingUser.user_id}/${newRelation.tenant_invitation_token}">${process.env.DOMAIN_URL}/accept/${userId}/${existingUser.user_id}/${newRelation.tenant_invitation_token}</a></p>
+                <p>Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: <a href="${process.env.DOMAIN_URL}/accept/${userId}/${existingTenant.tenant_id}/${newRelation.tenant_invitation_token}">${process.env.DOMAIN_URL}/accept/${userId}/${existingTenant.tenant_id}/${newRelation.tenant_invitation_token}</a></p>
                 
                 <p>Cordialement,<br>
                 ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario</p>
@@ -230,7 +230,7 @@ const addTenant = async (request: RequestWithUser, response: Response) => {
           <p>Bonjour ${tenantFirstName},<p>
           <p>${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} vous invite à utiliser Proprietario, une application qui aide les propriétaires et les locataires dans leurs interactions quotidiennes.</p>
 
-          <p>Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: <a href="${process.env.DOMAIN_URL}/accept/${userId}/${newTenant.user_id}/${newRelation.tenant_invitation_token}">${process.env.DOMAIN_URL}/accept/${userId}/${newTenant.user_id}/${newRelation.tenant_invitation_token}</a></p>
+          <p>Veuillez cliquer sur ce qui suit pour accepter l'invitation et confirmer votre inscription: <a href="${process.env.DOMAIN_URL}/accept/${userId}/${newTenant.tenant_id}/${newRelation.tenant_invitation_token}">${process.env.DOMAIN_URL}/accept/${userId}/${newTenant.tenant_id}/${newRelation.tenant_invitation_token}</a></p>
           
           <p>Cordialement,<br>
           ${existingLandlord?.landlord_first_name} ${existingLandlord?.landlord_last_name} via Proprietario</p>

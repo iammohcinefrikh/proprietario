@@ -2,12 +2,12 @@ import express from "express";
 
 import verifyJWTToken from "../middlewares/verifyJWTTokenMiddleware";
 import verifyCSRFToken from "../middlewares/verifyCSRFTokenMiddleware";
-import verifyLandlord from "../middlewares/verifyLandlordMiddleware";
+import verifyTenant from "../middlewares/verifyTenantMiddleware";
 
-import getStats from "../controllers/statsController";
+import getLandlords from "../controllers/landlordController";
 
 const router = express.Router();
 
-router.get("/api/v1/stats", verifyJWTToken, verifyCSRFToken, verifyLandlord, getStats);
+router.get("/api/v1/landlords", verifyJWTToken, verifyCSRFToken, verifyTenant, getLandlords);
 
 export default router;

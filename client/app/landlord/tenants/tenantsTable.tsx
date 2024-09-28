@@ -126,7 +126,6 @@ export default function TenantsTable() {
         
         if (response?.statusCode === 200) {
           setTenants(response?.tenants);
-          console.log()
         }
 
         else {
@@ -379,13 +378,13 @@ export default function TenantsTable() {
     <>
       { isLoading ? (
         <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
-          <Loader className="h-7 w-7 animate-spin" />
-          <p>Récupération des données du locataire...</p>
+          <Loader className="h-7 w-7 text-muted-foreground animate-spin" />
+          <p className="text-muted-foreground">Récupération des données du locataire...</p>
         </div>
       ) : ( isError ? (
         <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
-          <CircleX className="h-7 w-7" />
-          <p>Une erreur s'est produite lors de la récupération des données des locataires</p>
+          <CircleX className="h-7 w-7 text-muted-foreground" />
+          <p className="text-muted-foreground">Une erreur s'est produite lors de la récupération des données des locataires</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4 md:gap-6">
@@ -407,7 +406,7 @@ export default function TenantsTable() {
                   <>
                     <DialogHeader>
                       <DialogTitle>Ajouter un locataire</DialogTitle>
-                      <DialogDescription>Remplissez le formulaire ci-dessous pour ajouter un nouveau locatiare</DialogDescription>
+                      <DialogDescription>Remplissez le formulaire ci-dessous pour ajouter un nouveau locataire</DialogDescription>
                     </DialogHeader>
                     <Form {...createForm}>
                       <form onSubmit={createForm.handleSubmit(handleTenantCreation)} className="grid gap-4 mt-4">
@@ -502,8 +501,8 @@ export default function TenantsTable() {
                 { !modifyDialog.isLoading && !modifyDialog.isSuccess && !modifyDialog.isError ? (
                   <>
                     <DialogHeader>
-                      <DialogTitle>Modifier la propriété</DialogTitle>
-                      <DialogDescription>Modifiez les détails de la propriété ci-dessous</DialogDescription>
+                      <DialogTitle>Modifier le locataire</DialogTitle>
+                      <DialogDescription>Modifier les détails du locataire ci-dessous</DialogDescription>
                     </DialogHeader>
                     <Form {...modifyForm}>
                       <form onSubmit={modifyForm.handleSubmit(handleTenantModification)} className="grid gap-4 mt-4">

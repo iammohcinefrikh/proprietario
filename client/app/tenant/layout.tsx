@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
 import NavigationLinks from "./navLinks";
 import ProfileMenu from "../profileMenu";
 
-export default function Landlord({ children }: { children: React.ReactNode }) {
+export default function Tenant({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">

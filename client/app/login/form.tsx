@@ -7,18 +7,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../components/ui/form";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
+import { TriangleAlert, Loader } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 
 import loginUser from "./loginUser";
-import { TriangleAlert } from "lucide-react";
 
 const loginFormSchema = z.object({
   userEmail: z.string()
-    .min(1, { message: "L'adresse email est requise." })
-    .email({ message: "Veuillez saisir une adresse email valide." }),
+  .min(1, { message: "L'adresse email est requise." })
+  .email({ message: "Veuillez saisir une adresse email valide." }),
   userPassword: z.string()
   .min(8, { message: "Le mot de passe doit comporter au moins 8 caractères." })
   .max(64, { message: "Le mot de passe ne doit pas dépasser 64 caractères." })
@@ -42,39 +42,39 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
+    setIsLoading(true);
+    setIsError(false);
+    setErrorMessage("");
+
     try {
       const session = await loginUser(values.userEmail, values.userPassword);
-      setIsLoading(true);
-      setIsError(false);
-      setErrorMessage("");
     
-      if (session?.statusCode === 200) {
-        setIsLoading(false);
+      if (session.statusCode === 200) {
         window.location.href = `/${session?.url}`;
       }
 
       else {
-        if (session?.statusCode === 401) {
+        if (session.statusCode === 401) {
           form.setError("userEmail", {
             type: "manual",
-            message: session?.message
+            message: session.message
           });
 
           form.setError("userPassword", {
             type: "manual",
-            message: session?.message
+            message: session.message
           });
   
           form.setValue("userPassword", "");
         }
 
-        else if (session?.statusCode === 403) {
+        else if (session.statusCode === 403) {
           setIsError(true);
           setErrorMessage("Compte non activé, veuillez activer votre compte pour vous connecter.");
           form.setValue("userPassword", "");
         }
 
-        else if (session?.statusCode === 500) {
+        else if (session.statusCode === 500) {
           setIsError(true);
           setErrorMessage(session?.message);
 
@@ -86,7 +86,8 @@ export default function LoginForm() {
     }
 
     catch (error) {
-      return;
+      setIsError(true);
+      setErrorMessage("Une erreur s'est produite lors de votre connexion.");
     }
   }
 
@@ -125,7 +126,7 @@ export default function LoginForm() {
                   <FormMessage />
                 </FormItem>
               )} />
-              <Button type="submit" className="w-full mt-2" disabled={isLoading}>Se connecter{isLoading && "..."}</Button>
+              <Button type="submit" className="w-full mt-2" disabled={isLoading}>{isLoading && <Loader className="h-5 w-5 animate-spin mr-2" />}Se connecter</Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">

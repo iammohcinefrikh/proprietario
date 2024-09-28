@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { TriangleAlert, RefreshCw, Loader, CirclePlus, MoreHorizontal, CircleCheck, CircleX } from "lucide-react";
+import { RefreshCw, Loader, CirclePlus, MoreHorizontal, CircleCheck, CircleX } from "lucide-react";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../components/ui/dialog";
@@ -286,12 +286,12 @@ export default function PropertiesTable() {
       { isLoading ? (
         <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
           <Loader className="h-7 w-7 text-muted-foreground animate-spin" />
-          <p>Récupération des données de propriétés...</p>
+          <p className="text-muted-foreground">Récupération des données de propriétés...</p>
         </div>
       ) : ( isError ? (
         <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
-          <CircleX className="h-7 w-7" />
-          <p>Une erreur s'est produite lors de la récupération des propriétés</p>
+          <CircleX className="h-7 w-7 text-muted-foreground" />
+          <p className="text-muted-foreground">Une erreur s'est produite lors de la récupération des propriétés</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4 md:gap-6">

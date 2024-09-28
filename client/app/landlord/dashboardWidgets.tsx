@@ -5,7 +5,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, Pie, PieChart } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "../../components/ui/chart";
-import { TriangleAlert, House, Loader, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { CircleX, House, Loader, TrendingDown, TrendingUp, Users } from "lucide-react";
 
 import getStats from "./getStats";
 
@@ -75,12 +75,12 @@ export default function DashboardWidgets() {
       { isLoading ? (
         <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
           <Loader className="h-7 w-7 text-muted-foreground animate-spin" />
-          <p>Récupération des données du tableau de bord...</p>
+          <p className="text-muted-foreground">Récupération des données du tableau de bord...</p>
         </div>
       ) : ( isError ? (
-        <div className="flex flex-col w-full h-full justify-center items-center">
-          <TriangleAlert className="h-7 w-7 text-muted-foreground" />
-          <h3 className="font-semibold mt-3 text-muted-foreground text-center">Une erreur s'est produite lors de la récupération des statistiques</h3>
+        <div className="flex flex-row w-full gap-3 h-full justify-center items-center">
+          <CircleX className="h-7 w-7 text-muted-foreground" />
+          <p className="text-muted-foreground">Une erreur s'est produite lors de la récupération des statistiques</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4 md:gap-6">
