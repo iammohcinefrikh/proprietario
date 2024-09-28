@@ -90,6 +90,7 @@ export default function RegisterForm() {
     catch (error) {
       setIsError(true);
       setErrorMessage("Une erreur s'est produite lors de la création du compte.");
+      setIsLoading(false);
     }
     
   }

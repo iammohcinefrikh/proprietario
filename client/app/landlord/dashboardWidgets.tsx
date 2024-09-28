@@ -6,6 +6,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, Pie, PieChart } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "../../components/ui/chart";
 import { CircleX, House, Loader, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { Button } from "../../components/ui/button";
 
 import getStats from "./getStats";
 
@@ -86,9 +87,7 @@ export default function DashboardWidgets() {
         <div className="flex flex-col gap-4 md:gap-6">
           <div className="flex flex-col">
             <h1 className="text-lg font-bold md:text-2xl">Tableau de bord</h1>
-            <p className="text-sm text-muted-foreground mt-1">Informations et activités en temps réel sur vos propriétés</p>
           </div>
-
           <div className="flex flex-col gap-4 xl:flex-row md:gap-6">
             <div className="flex flex-col flex-1 justify-between p-6 border rounded-lg shadow-sm">
               <div className="flex flex-row justify-between items-center">
@@ -119,7 +118,6 @@ export default function DashboardWidgets() {
               <div className="text-2xl font-bold mt-4 text-green-600">{ stats.cashed + " DH" }</div>
             </div>
           </div>
-
           <div className="flex flex-col gap-4 xl:flex-row md:gap-6">
             <Card className="basis-2/3">
               <CardHeader>
@@ -146,7 +144,6 @@ export default function DashboardWidgets() {
                   ) }
               </CardContent>
             </Card>
-
             <Card className="basis-1/3">
               <CardHeader>
                 <div className="grid gap-2">

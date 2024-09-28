@@ -88,6 +88,7 @@ export default function LoginForm() {
     catch (error) {
       setIsError(true);
       setErrorMessage("Une erreur s'est produite lors de votre connexion.");
+      setIsLoading(false);
     }
   }
 

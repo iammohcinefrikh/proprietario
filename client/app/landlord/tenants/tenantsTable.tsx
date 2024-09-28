@@ -391,7 +391,6 @@ export default function TenantsTable() {
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-col">
               <h1 className="text-lg font-bold md:text-2xl">Locataires</h1>
-              <p className="text-sm text-muted-foreground mt-1">Consulter et gérer vos locataires</p>
             </div>
 
             <Dialog open={createDialog.isOpen} onOpenChange={handleOpenChange}>
