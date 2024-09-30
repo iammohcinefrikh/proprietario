@@ -1,5 +1,13 @@
+import { Metadata } from "next";
+
+import DashboardWidgets from "./dashboardWidgets";
+
+export const metadata: Metadata = {
+  title: "Proprietario - Tableau de bord"
+};
+
 export default function Tenant() {
   return (
-    <p>Tenant</p>
+    <DashboardWidgets />
   )
 }

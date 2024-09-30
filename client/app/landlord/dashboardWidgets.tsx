@@ -5,8 +5,9 @@ import { Bar, BarChart, CartesianGrid, XAxis, Pie, PieChart } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "../../components/ui/chart";
-import { CircleX, House, Loader, TrendingDown, TrendingUp, Users } from "lucide-react";
 import { Button } from "../../components/ui/button";
+
+import { CircleX, House, Loader, TrendingDown, TrendingUp, Users, HousePlus, UserRoundPlus, FilePlus2 } from "lucide-react";
 
 import getStats from "./getStats";
 
@@ -88,6 +89,30 @@ export default function DashboardWidgets() {
           <div className="flex flex-col">
             <h1 className="text-lg font-bold md:text-2xl">Tableau de bord</h1>
           </div>
+
+          <div className="flex flex-col flex-1 gap-4 justify-center items-center p-6 border rounded-lg shadow-sm xl:flex-row">
+            <Button className="flex flex-col w-full p-4 h-50 lg:w-auto" variant="ghost">
+              <HousePlus className="mb-3 h-6 w-6" />
+              <p>Nouvelle propriété</p>
+            </Button>
+            <Button className="flex flex-col w-full p-4 h-50 lg:w-auto" variant="ghost">
+              <UserRoundPlus className="mb-3 h-6 w-6" />
+              <p>Nouveau locataire</p>
+            </Button>
+            <Button className="flex flex-col w-full p-4 h-50 lg:w-auto" variant="ghost">
+              <FilePlus2 className="mb-3 h-6 w-6" />
+              <p>Nouvelle location</p>
+            </Button>
+            <Button className="flex flex-col w-full p-4 h-50 lg:w-auto" variant="ghost">
+              <TrendingUp className="mb-3 h-6 w-6" />
+              <p>Ajouter des revenus</p>
+            </Button>
+            <Button className="flex flex-col w-full p-4 h-50 lg:w-auto" variant="ghost">
+              <TrendingDown className="mb-3 h-6 w-6" />
+              <p>Ajouter des dépenses</p>
+            </Button>
+          </div>
+          
           <div className="flex flex-col gap-4 xl:flex-row md:gap-6">
             <div className="flex flex-col flex-1 justify-between p-6 border rounded-lg shadow-sm">
               <div className="flex flex-row justify-between items-center">

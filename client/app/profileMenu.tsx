@@ -24,7 +24,7 @@ export default function ProfileMenu() {
         <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>Paramètres</DropdownMenuItem>
-        <DropdownMenuItem>Soutien</DropdownMenuItem>
+        <DropdownMenuItem>Aide</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>Déconnexion</DropdownMenuItem>
       </DropdownMenuContent>

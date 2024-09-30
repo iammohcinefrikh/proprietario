@@ -28,7 +28,7 @@ export default function Landlord({ children }: { children: React.ReactNode }) {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="shrink-0 rounded-full md:hidden">
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
+                <span className="sr-only">Basculer le menu de navigation</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">

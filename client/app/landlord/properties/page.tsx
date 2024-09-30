@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import UnitsTable from "./propertiesTable";
+import PropertiesTable from "./propertiesTable";
 
 export const metadata: Metadata = {
   title: "Proprietario - Propriétés"
@@ -8,6 +8,6 @@ export const metadata: Metadata = {
 
 export default function Property() {
   return (
-    <UnitsTable />
+    <PropertiesTable />
   )
 }

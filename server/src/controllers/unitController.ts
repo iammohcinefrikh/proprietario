@@ -11,21 +11,48 @@ interface RequestWithUser extends Request {
 
 const getUnits = async (request: RequestWithUser, response: Response) => {
   try {
-    const { userId } = request.user;
+    const { userId, userRole } = request.user;
 
-    const existingUnits = await prisma.unit.findMany({
-      select: {
-        unit_id: true,
-        unit_name: true,
-        unit_type: true,
-        unit_created_at: true
-      },
-      where: {
-        landlord_id: userId
-      }
-    });
+    if (userRole === "landlord") {
+      const existingUnits = await prisma.unit.findMany({
+        select: {
+          unit_id: true,
+          unit_name: true,
+          unit_type: true,
+          unit_created_at: true
+        },
+        where: {
+          landlord_id: userId
+        }
+      });
+  
+      handleResponse(response, 200, "success", "OK", "Unités récupérées avec succès.", { "units": existingUnits });
+    }
 
-    handleResponse(response, 200, "success", "OK", "Unités récupérées avec succès.", { "units": existingUnits });
+    else if (userRole === "tenant") {
+      const existingUnits = await prisma.unit.findMany({
+        where: {
+          tenancy: {
+            some: {
+              tenant_id: userId
+            }
+          }
+        },
+        select: {
+          unit_id: true,
+          unit_name: true,
+          unit_type: true,
+          landlord: {
+            select: {
+              landlord_first_name: true,
+              landlord_last_name: true
+            }
+          }
+        }
+      });
+
+      handleResponse(response, 200, "success", "OK", "Unités récupérées avec succès.", { "units": existingUnits });
+    }
   }
 
   catch (error) {

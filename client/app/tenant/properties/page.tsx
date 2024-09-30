@@ -1,5 +1,13 @@
-export default function Properties() {
+import { Metadata } from "next";
+
+import PropertiesTable from "./propertiesTable";
+
+export const metadata: Metadata = {
+  title: "Proprietario - Propriétés"
+};
+
+export default function Property() {
   return (
-    <p>Properties</p>
+    <PropertiesTable />
   )
 }

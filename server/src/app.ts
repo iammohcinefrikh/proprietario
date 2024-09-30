@@ -9,6 +9,7 @@ import authentificationRoutes from "./routers/authentificationRouter";
 import statsRoute from "./routers/statsRouter";
 import unitRoutes from "./routers/unitRouter";
 import tenantRoutes from "./routers/tenantRouter";
+import landlordRouter from "./routers/landlordRouter";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(authentificationRoutes);
 app.use(statsRoute);
 app.use(unitRoutes);
 app.use(tenantRoutes);
+app.use(landlordRouter);
 
 const PORT = process.env.PORT || 8080;
 

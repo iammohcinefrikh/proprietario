@@ -26,16 +26,14 @@ export default function Tenant({ children }: { children: React.ReactNode }) {
         <header className="flex h-[60px] items-center gap-4 border-b bg-muted/40 px-4 lg:h-[65px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+              <Button variant="ghost" size="icon" className="shrink-0 rounded-full md:hidden">
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
+                <span className="sr-only">Basculer le menu de navigation</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
-                <p className="text-lg font-semibold">
-                  Proprietario
-                </p>
+                <Image src={`/images/proprietario-logo.svg`} alt="Proprietario Logo" width="142" height="20" />
                 <NavigationLinks />
               </nav>
             </SheetContent>
