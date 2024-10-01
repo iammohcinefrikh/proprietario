@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  database:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Fq48E2cqnTzA7DUX
+      MYSQL_DATABASE: proprietario
+    ports:
+      - "3307:3306"
+    networks:
+      - node-webapp-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  phpmyadmin:
+    depends_on:
+      - database
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: Fq48E2cqnTzA7DUX
+    networks:
+      - node-webapp-network
+  server:
+    container_name: backendapp
+    build:
+      context: ./server
+    env_file:
+      - ./server/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - node-webapp-network
+
+  client:
+    container_name: clientapp
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    networks:
+      - node-webapp-network
+    depends_on:
+      - server
+networks:
+  node-webapp-network:
+    driver: bridge
